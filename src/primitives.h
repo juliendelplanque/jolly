@@ -14,11 +14,11 @@
  * A primitive that always fails.
  * Writes the PRIMITIVE_FAILED_RESULT_CODE at PRIMITIVE_RESULT_CODE_ADDRESS.
  */
-void primitive_fail(unsigned char *memory);
+void primitive_fail(WORD *memory);
 
 /**
  * A primitive that does nothing.
  */
-void primitive_nop(unsigned char *memory);
+void primitive_nop(WORD *memory);
 
 #endif
