@@ -24,7 +24,7 @@ int execute_primitive(WORD *memory){
             primitive_fail(memory);
             break;
     }
-    
+
     // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
     // like that, if the code sets activate the primitive handler by accident,
     // nope primitive will be executed which is handy as it does nothing.
@@ -37,6 +37,10 @@ int execute_primitive(WORD *memory){
 
 int execute_instruction(WORD *memory, WORD *pc){
     unsigned int from_address, to_address, jump_address;
+    if(memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY){
+        execute_primitive(memory);
+    }
+
     // Compute address to copy word from.
     from_address = pc[FROM_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
         | pc[FROM_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
