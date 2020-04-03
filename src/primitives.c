@@ -24,3 +24,8 @@ void primitive_put_char(WORD *memory){
     //TODO
     primitive_fail(memory);
 }
+
+void primitive_save_snapshot(WORD *memory){
+    //TODO
+    primitive_fail(memory);
+}
