@@ -1,16 +1,12 @@
+#include "memory.h"
+#include "primitives.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
-#define WORD_SIZE 8
-#define DOUBLE_WORD_SIZE (WORD_SIZE * 2)
 #define INNER_LOOP_ITERATIONS 65536
 
-#define MAX_MEMORY_SIZE 0x1000008
-
-#define NEXT_FRAME_PC_HIGH_ADDRESS 0
-#define NEXT_FRAME_PC_MIDDLE_ADDRESS 1
-#define NEXT_FRAME_PC_LOW_ADDRESS 2
-
+// Offsets to read an instruction.
 #define FROM_ADDRESS_HIGH_OFFSET 0
 #define FROM_ADDRESS_MIDDLE_OFFSET 1
 #define FROM_ADDRESS_LOW_OFFSET 2
@@ -28,9 +24,9 @@ void print_pc_address(unsigned char *memory, unsigned char *pc){
 }
 
 int inner_loop(unsigned char *memory, unsigned char *pc){
-    int i = INNER_LOOP_ITERATIONS;
+    unsigned int i = INNER_LOOP_ITERATIONS;
     do {
-        int from_address,to_address,jump_address;
+        unsigned int from_address, to_address, jump_address;
         // Compute address to copy word from.
         from_address = pc[FROM_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
             | pc[FROM_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
@@ -65,7 +61,7 @@ int execute_frame(unsigned char *memory){
     return 0;
 }
 
-int main (){   
+int main(){   
     unsigned char *memory;
     memory = (unsigned char *)malloc(MAX_MEMORY_SIZE);
     if(memory == NULL){

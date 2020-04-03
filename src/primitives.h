@@ -1,0 +1,7 @@
+#include "memory.h"
+
+#define PRIMITIVE_ID_NOPE 0
+#define PRIMITIVE_ID_FAIL 1
+
+#define PRIMITIVE_OK_RESULT_CODE 0
+#define PRIMITIVE_FAILED_RESULT_CODE 1
