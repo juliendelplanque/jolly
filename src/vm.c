@@ -24,10 +24,14 @@ int execute_primitive(WORD *memory){
             primitive_fail(memory);
             break;
     }
-    // Set the value of primitive to execute in next frame to PRIMITIVE_ID_NOPE
-    // like that, if the code sets no primitive to execute during next frame,
-    // nope primitive will be executed which is hand as it does nothing.
+    
+    // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
+    // like that, if the code sets activate the primitive handler by accident,
+    // nope primitive will be executed which is handy as it does nothing.
     memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_NOPE;
+
+    // Set back the primitive trigger to PRIMITIVE_NOT_READY.
+    memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_NOT_READY;
     return 0;
 }
 
@@ -61,6 +65,28 @@ int load_pc(WORD *memory, WORD **pc){
     *pc = memory + (memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
                     | memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
                     | memory[PC_LOW_ADDRESS]);
+    return 0;
+}
+
+int load_snapshot(char *filename, WORD **memory){
+    long length;
+    FILE * f = fopen (filename, "rb");
+
+    if (f){
+        fseek(f, 0, SEEK_END);
+        length = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        *memory = malloc(MAX_MEMORY_SIZE);
+        if (*memory)
+        {
+            fread(*memory, 1, length, f);
+        }
+        fclose (f);
+    }
+
+    if (! *memory){
+        return -1;
+    }
     return 0;
 }
 
