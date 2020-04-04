@@ -1,5 +1,13 @@
 # Jolly
-A ByteByteJump virtual machine inspired by [BytePusher](https://esolangs.org/wiki/BytePusher).
+
+A [ByteByteJump](https://esolangs.org/wiki/ByteByteJump) virtual machine inspired by [BytePusher](https://esolangs.org/wiki/BytePusher).
+
+## Building and running
+
+```shell
+cmake . && make
+./src/jolly
+```
 
 ## Features (early draft)
 
@@ -13,5 +21,6 @@ A ByteByteJump virtual machine inspired by [BytePusher](https://esolangs.org/wik
 - Interface with operating system via primitives (e.g. read from stdin / write to stdout/stderr)
 
 ## Future
+
 - Multi-threading
 - FFI
