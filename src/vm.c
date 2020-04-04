@@ -9,6 +9,13 @@ void print_pc_address(WORD *memory, WORD *pc){
     printf("pc = 0x%06X\n", ((unsigned)pc)-((unsigned)memory));
 }
 
+void print_value_at_address(WORD *memory, unsigned int address){
+    printf("memory[0x%06X] = %c | %d\n",
+        address,
+        memory[address],
+        memory[address]);
+}
+
 int execute_primitive(WORD *memory){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.
@@ -19,6 +26,9 @@ int execute_primitive(WORD *memory){
             break;
         case(PRIMITIVE_ID_FAIL):
             primitive_fail(memory);
+            break;
+        case(PRIMITIVE_ID_PUT_CHAR):
+            primitive_get_char(memory);
             break;
         default: // In case no primitive is associated to an id, the call fails.
             primitive_fail(memory);
@@ -61,7 +71,6 @@ int execute_instruction(WORD *memory, WORD *pc){
     
     // Update program counter according to jump_address (absolute jump).
     pc = memory + jump_address;
-    print_pc_address(memory, pc);
     return 0;
 }
 
@@ -104,9 +113,17 @@ int main(){
     memory[PC_MIDDLE_ADDRESS] = 0x42;
     memory[PC_LOW_ADDRESS] = 0x10;
 
+    memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_READY;
+    memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_PUT_CHAR;
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x01;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = 0x00;
     load_pc(memory, &pc);
     print_pc_address(memory, pc);
     execute_instruction(memory, pc);
+
+    print_value_at_address(memory, PRIMITIVE_IS_READY_ADDRESS);
+    print_value_at_address(memory, 0x000100);
     free(memory);
     return 0;
 }
