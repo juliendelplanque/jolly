@@ -1,1 +1,1 @@
-add_executable(jolly vm.c primitives.c)
+add_executable(jolly jolly.c vm.c primitives.c)
