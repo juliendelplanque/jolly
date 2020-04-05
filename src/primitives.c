@@ -1,33 +1,33 @@
 #include "primitives.h"
 #include <stdio.h>
 
-void primitive_fail(WORD *memory){
-    memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_FAILED_RESULT_CODE;
+void primitive_fail(struct virtual_machine *vm){
+    vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_FAILED_RESULT_CODE;
 }
 
-void primitive_nop(WORD *memory){
+void primitive_nop(struct virtual_machine *vm){
     // Does nothing on purpose.
-    memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
+    vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
 }
 
-void primitive_get_char(WORD *memory){
+void primitive_get_char(struct virtual_machine *vm){
     unsigned int result_address;
     
     result_address = 
-        memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] << DOUBLE_WORD_SIZE 
-        | memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] << WORD_SIZE
-        | memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS];
+        vm->memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] << DOUBLE_WORD_SIZE 
+        | vm->memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] << WORD_SIZE
+        | vm->memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS];
 
-    memory[result_address] = (WORD)getchar();
-    memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
+    vm->memory[result_address] = (WORD)getchar();
+    vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
 }
 
-void primitive_put_char(WORD *memory){
+void primitive_put_char(struct virtual_machine *vm){
     //TODO
-    primitive_fail(memory);
+    primitive_fail(vm);
 }
 
-void primitive_save_snapshot(WORD *memory){
+void primitive_save_snapshot(struct virtual_machine *vm){
     //TODO
-    primitive_fail(memory);
+    primitive_fail(vm);
 }

@@ -6,26 +6,26 @@
 #include <stdio.h>
 
 int main(int argc, char ** argv){
-    WORD *memory, *pc;
-    memory = (WORD *)malloc(MAX_MEMORY_SIZE);
-    if(memory == NULL){
+    struct virtual_machine jolly;
+    jolly.memory = (WORD *)malloc(MAX_MEMORY_SIZE);
+    if(jolly.memory == NULL){
         fprintf(stderr, "Malloc failed.\n");
     }
-    memory[PC_HIGH_ADDRESS] = 0x0;
-    memory[PC_MIDDLE_ADDRESS] = 0x42;
-    memory[PC_LOW_ADDRESS] = 0x10;
+    jolly.memory[PC_HIGH_ADDRESS] = 0x0;
+    jolly.memory[PC_MIDDLE_ADDRESS] = 0x42;
+    jolly.memory[PC_LOW_ADDRESS] = 0x10;
 
-    memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_READY;
-    memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_PUT_CHAR;
-    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
-    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x01;
-    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = 0x00;
-    load_pc(memory, &pc);
-    print_pc_address(memory, pc);
-    execute_instruction(memory, pc);
+    jolly.memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_READY;
+    jolly.memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_PUT_CHAR;
+    jolly.memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    jolly.memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x01;
+    jolly.memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = 0x00;
+    load_pc(&jolly);
+    print_pc_address(jolly.memory, jolly.pc);
+    execute_instruction(&jolly);
 
-    print_value_at_address(memory, PRIMITIVE_IS_READY_ADDRESS);
-    print_value_at_address(memory, 0x000100);
-    free(memory);
+    print_value_at_address(jolly.memory, PRIMITIVE_IS_READY_ADDRESS);
+    print_value_at_address(jolly.memory, 0x000100);
+    free(jolly.memory);
     return 0;
 }

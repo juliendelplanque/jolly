@@ -3,6 +3,7 @@
 #define PRIMITIVES_H
 
 #include "memory.h"
+#include "vm.h"
 
 #define PRIMITIVE_ID_NOPE 0
 #define PRIMITIVE_ID_FAIL 1
@@ -18,17 +19,17 @@
  * A primitive that always fails.
  * Writes the PRIMITIVE_FAILED_RESULT_CODE at PRIMITIVE_RESULT_CODE_ADDRESS.
  */
-void primitive_fail(WORD *memory);
+void primitive_fail(struct virtual_machine *vm);
 
 /**
  * A primitive that does nothing.
  */
-void primitive_nop(WORD *memory);
+void primitive_nop(struct virtual_machine *vm);
 
-void primitive_get_char(WORD *memory);
+void primitive_get_char(struct virtual_machine *vm);
 
-void primitive_put_char(WORD *memory);
+void primitive_put_char(struct virtual_machine *vm);
 
-void primitive_save_snapshot(WORD *memory);
+void primitive_save_snapshot(struct virtual_machine *vm);
 
 #endif

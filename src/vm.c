@@ -16,68 +16,68 @@ void print_value_at_address(WORD *memory, unsigned int address){
         memory[address]);
 }
 
-int execute_primitive(WORD *memory){
+int execute_primitive(struct virtual_machine *vm){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.
-    primitive_id = memory[PRIMITIVE_CALL_ID_ADDRESS];
+    primitive_id = vm->memory[PRIMITIVE_CALL_ID_ADDRESS];
     switch(primitive_id){
         case(PRIMITIVE_ID_NOPE):
-            primitive_nop(memory);
+            primitive_nop(vm);
             break;
         case(PRIMITIVE_ID_FAIL):
-            primitive_fail(memory);
+            primitive_fail(vm);
             break;
         case(PRIMITIVE_ID_PUT_CHAR):
-            primitive_get_char(memory);
+            primitive_get_char(vm);
             break;
         default: // In case no primitive is associated to an id, the call fails.
-            primitive_fail(memory);
+            primitive_fail(vm);
             break;
     }
 
     // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
     // like that, if the code sets activate the primitive handler by accident,
     // nope primitive will be executed which is handy as it does nothing.
-    memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_NOPE;
+    vm->memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_NOPE;
 
     // Set back the primitive trigger to PRIMITIVE_NOT_READY.
-    memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_NOT_READY;
+    vm->memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_NOT_READY;
     return 0;
 }
 
-int execute_instruction(WORD *memory, WORD *pc){
+int execute_instruction(struct virtual_machine *vm){
     unsigned int from_address, to_address, jump_address;
-    if(memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY){
-        execute_primitive(memory);
+    if(vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY){
+        execute_primitive(vm);
     }
 
     // Compute address to copy word from.
-    from_address = pc[FROM_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
-        | pc[FROM_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
-        | pc[FROM_ADDRESS_LOW_OFFSET];
+    from_address = vm->pc[FROM_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
+        | vm->pc[FROM_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
+        | vm->pc[FROM_ADDRESS_LOW_OFFSET];
     
     // Compute address to copy word to.
-    to_address = pc[TO_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE 
-        | pc[TO_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
-        | pc[TO_ADDRESS_LOW_OFFSET];
+    to_address = vm->pc[TO_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE 
+        | vm->pc[TO_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
+        | vm->pc[TO_ADDRESS_LOW_OFFSET];
 
     // Copy word pointed by from_address to to_address.
-    memory[to_address] = memory[from_address];
+    vm->memory[to_address] = vm->memory[from_address];
 
     // Compute next address for program counter: the jump address.
-    jump_address = pc[JUMP_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
-        | pc[JUMP_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
-        | pc[JUMP_ADDRESS_LOW_OFFSET];
+    jump_address = vm->pc[JUMP_ADDRESS_HIGH_OFFSET] << DOUBLE_WORD_SIZE
+        | vm->pc[JUMP_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
+        | vm->pc[JUMP_ADDRESS_LOW_OFFSET];
     
     // Update program counter according to jump_address (absolute jump).
-    pc = memory + jump_address;
+    vm->pc = vm->memory + jump_address;
     return 0;
 }
 
-int load_pc(WORD *memory, WORD **pc){
-    *pc = memory + (memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
-                    | memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
-                    | memory[PC_LOW_ADDRESS]);
+int load_pc(struct virtual_machine *vm){
+    vm->pc = vm->memory + (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
+                    | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
+                    | vm->memory[PC_LOW_ADDRESS]);
     return 0;
 }
 
