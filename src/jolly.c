@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int main(){
+int main(int argc, char ** argv){
     WORD *memory, *pc;
     memory = (WORD *)malloc(MAX_MEMORY_SIZE);
     if(memory == NULL){
