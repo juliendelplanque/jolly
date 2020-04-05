@@ -47,6 +47,8 @@ int execute_primitive(struct virtual_machine *vm){
 
 int execute_instruction(struct virtual_machine *vm){
     unsigned int from_address, to_address, jump_address;
+    // Checks if vm needs to execute a primitive before executing an
+    // instruction.
     if(vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY){
         execute_primitive(vm);
     }
@@ -81,7 +83,7 @@ int load_pc(struct virtual_machine *vm){
     return 0;
 }
 
-int load_snapshot(char *filename, WORD **memory){
+int load_snapshot(struct virtual_machine *vm, char *filename){
     long length;
     FILE * f = fopen (filename, "rb");
 
@@ -89,15 +91,15 @@ int load_snapshot(char *filename, WORD **memory){
         fseek(f, 0, SEEK_END);
         length = ftell(f);
         fseek(f, 0, SEEK_SET);
-        *memory = malloc(MAX_MEMORY_SIZE);
-        if (*memory)
+        vm->memory = malloc(MAX_MEMORY_SIZE);
+        if (vm->memory)
         {
-            fread(*memory, 1, length, f);
+            fread(vm->memory, 1, length, f);
         }
         fclose (f);
     }
 
-    if (! *memory){
+    if (! vm->memory){
         return -1;
     }
     return 0;
