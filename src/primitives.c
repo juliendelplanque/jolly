@@ -7,6 +7,7 @@ void primitive_fail(WORD *memory){
 
 void primitive_nop(WORD *memory){
     // Does nothing on purpose.
+    memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
 }
 
 void primitive_get_char(WORD *memory){
@@ -18,6 +19,7 @@ void primitive_get_char(WORD *memory){
         | memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS];
 
     memory[result_address] = (WORD)getchar();
+    memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
 }
 
 void primitive_put_char(WORD *memory){
