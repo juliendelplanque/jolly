@@ -33,7 +33,7 @@ struct virtual_machine* new_vm(){
 }
 
 int set_memory(struct virtual_machine* vm, WORD *memory){
-    if(memory == NULL){
+    if(memory == NULL_MEMORY){
         return VM_INVALID_MEMORY;
     }
     vm->memory = memory;
@@ -44,14 +44,14 @@ int set_memory(struct virtual_machine* vm, WORD *memory){
 int create_empty_memory(struct virtual_machine* vm){
     WORD *memory;
     memory = (WORD *)calloc(1, MAX_MEMORY_SIZE);
-    if(memory == NULL){
+    if(memory == NULL_MEMORY){
         return VM_MEMORY_ALLOCATION_FAILED;
     }
     return set_memory(vm, memory);
 }
 
 void free_vm(struct virtual_machine *vm){
-    if(vm->memory != NULL){
+    if(vm->memory != NULL_MEMORY){
         free(vm->memory);
     }
     free(vm);
@@ -62,7 +62,7 @@ int get_pc_address(struct virtual_machine *vm){
 }
 
 int set_pc_address(struct virtual_machine *vm, int pc_address){
-    if(vm->memory == NULL){
+    if(vm->memory == NULL_MEMORY){
         return VM_INVALID_MEMORY;
     }
     vm->pc = vm->memory + pc_address;
@@ -71,7 +71,7 @@ int set_pc_address(struct virtual_machine *vm, int pc_address){
 
 int serialize_pc(struct virtual_machine *vm){
     int pc;
-    if(vm->memory == NULL){
+    if(vm->memory == NULL_MEMORY){
         return VM_MEMORY_UNINITIALIZED;
     }
     pc = get_pc_address(vm);
