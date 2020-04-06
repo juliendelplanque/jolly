@@ -27,7 +27,7 @@ file(GLOB LIBGENERATED_FILES ${GENERATED_SOURCE_DIR}/*)
 # Since Check uses Threads to paralelize the tests, it's mandatory
 # add pthread as a dependency, alongside the Check libraries.
 add_executable(vm_tests ${GENERATED_SOURCE_DIR}/vm_tests.c)
-target_link_libraries(vm_tests ${CHECK_LIBRARIES} pthread)
+target_link_libraries(vm_tests jolly ${CHECK_LIBRARIES} pthread)
 
 # Create testing target and redirect its output to `Testing` folder
 add_test(NAME vm_tests COMMAND vm_tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)

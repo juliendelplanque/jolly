@@ -1,1 +1,4 @@
-add_executable(jolly jolly.c vm.c primitives.c)
+add_subdirectory(lib)
+
+add_executable(main jolly.c)
+target_link_libraries(main jolly)
