@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-checkmk vm_tests.check > vm_tests.c
+checkmk $1/vm_tests.check > $2/vm_tests.c
