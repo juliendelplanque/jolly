@@ -5,7 +5,8 @@ A [ByteByteJump](https://esolangs.org/wiki/ByteByteJump) virtual machine inspire
 ## Building and running
 
 ```shell
-cmake . && make
+mkdir build && cd build
+cmake .. && make
 ./src/jolly
 ```
 
