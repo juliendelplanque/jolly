@@ -14,19 +14,15 @@ include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 
-set(MODEL_FILE tests)
-set_directory_properties(PROPERTIES CMAKE_CONFIGURE_DEPENDS ${MODEL_FILE})
-set(GENERATED_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_FILE})
-
-file(REMOVE_RECURSE ${GENERATED_SOURCE_DIR})
-file(MAKE_DIRECTORY ${GENERATED_SOURCE_DIR})
-execute_process(COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/preprocess_tests.sh" ${CMAKE_CURRENT_SOURCE_DIR} ${GENERATED_SOURCE_DIR})
-
-file(GLOB LIBGENERATED_FILES ${GENERATED_SOURCE_DIR}/*)
+add_custom_command(
+    OUTPUT vm_tests.c
+    COMMAND checkmk ${CMAKE_CURRENT_SOURCE_DIR}/vm_tests.check > ${CMAKE_CURRENT_BINARY_DIR}/vm_tests.c
+    DEPENDS vm_tests.check
+)
 
 # Since Check uses Threads to paralelize the tests, it's mandatory
 # add pthread as a dependency, alongside the Check libraries.
-add_executable(vm_tests ${GENERATED_SOURCE_DIR}/vm_tests.c)
+add_executable(vm_tests ${CMAKE_CURRENT_BINARY_DIR}/vm_tests.c)
 target_link_libraries(vm_tests jolly ${CHECK_LIBRARIES} pthread)
 
 # Create testing target and redirect its output to `Testing` folder

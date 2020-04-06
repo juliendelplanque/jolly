@@ -3,3 +3,4 @@
 #test dummy_test
     int x = 42;
     fail_unless(x == 42, "dummy");
+    fail_unless(24 == 2, "dummy2");
