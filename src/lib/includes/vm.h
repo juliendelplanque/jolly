@@ -19,6 +19,10 @@
 
 #define NULL_VM (struct virtual_machine *) NULL
 
+// Error codes
+#define VM_OK 0
+#define VM_MEMORY_UNINITIALIZED 1
+
 enum vm_status { VIRTUAL_MACHINE_RUN, VIRTUAL_MACHINE_STOP };
 
 struct virtual_machine{
@@ -47,6 +51,18 @@ struct virtual_machine* new_vm_with_memory(WORD *memory);
  * Frees the virtual machine provided as argument.
  */
 void free_vm(struct virtual_machine *vm);
+
+/**
+ * Returns an integer being the address of the program counter in Jolly's
+ * memory.
+ */
+int pc_address(struct virtual_machine *vm);
+
+/**
+ * Serializes actual program counter of the virtual machine provided as argument
+ * in its memory.
+ */
+int serialize_pc(struct virtual_machine *vm);
 
 /**
  * Lookup the primitive corresponding to the id stored at address

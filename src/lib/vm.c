@@ -46,6 +46,24 @@ void free_vm(struct virtual_machine *vm){
     free(vm);
 }
 
+int pc_address(struct virtual_machine *vm){
+    return ((unsigned)vm->pc)-((unsigned)vm->memory);
+}
+
+int serialize_pc(struct virtual_machine *vm){
+    int pc;
+    if(vm->memory == NULL){
+        return VM_MEMORY_UNINITIALIZED;
+    }
+    pc = pc_address(vm);
+    vm->memory[PC_HIGH_ADDRESS] = (pc >> DOUBLE_WORD_SIZE)
+                                    & WORD_BIT_MASK;
+    vm->memory[PC_MIDDLE_ADDRESS] = (pc >> WORD_SIZE)
+                                    & WORD_BIT_MASK;
+    vm->memory[PC_LOW_ADDRESS] = pc & WORD_BIT_MASK;
+    return VM_OK;
+}
+
 int execute_primitive(struct virtual_machine *vm){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.

@@ -2,6 +2,7 @@
 
 #define MEMORY_H
 
+#define WORD_BIT_MASK 0xFF
 #define WORD_SIZE 8
 #define DOUBLE_WORD_SIZE (WORD_SIZE * 2)
 
