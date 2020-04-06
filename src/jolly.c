@@ -29,6 +29,6 @@ int main(int argc, char ** argv){
 
     print_value_at_address(jolly->memory, PRIMITIVE_IS_READY_ADDRESS);
     print_value_at_address(jolly->memory, 0x000100);
-    free(jolly);
+    free_vm(jolly);
     return 0;
 }
