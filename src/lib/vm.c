@@ -25,7 +25,7 @@ int load_pc(struct virtual_machine *vm){
 
 struct virtual_machine* new_vm(){
     struct virtual_machine* vm = (struct virtual_machine *) malloc(sizeof(struct virtual_machine));
-    if(vm == (struct virtual_machine*)NULL){
+    if(vm == NULL_VM){
         fprintf(stderr, "Malloc failed, unable to create VM.\n");
     }
     vm->status = VIRTUAL_MACHINE_RUN;
