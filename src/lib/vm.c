@@ -43,7 +43,7 @@ int set_memory(struct virtual_machine* vm, WORD *memory){
 
 int create_empty_memory(struct virtual_machine* vm){
     WORD *memory;
-    memory = (WORD *)malloc(MAX_MEMORY_SIZE);
+    memory = (WORD *)calloc(1, MAX_MEMORY_SIZE);
     if(memory == NULL){
         return VM_MEMORY_ALLOCATION_FAILED;
     }
