@@ -23,13 +23,14 @@ int load_pc(struct virtual_machine *vm){
     return 0;
 }
 
-struct virtual_machine* new_vm(){
-    struct virtual_machine* vm = (struct virtual_machine *) malloc(sizeof(struct virtual_machine));
-    if(vm == NULL_VM){
-        fprintf(stderr, "Malloc failed, unable to create VM.\n");
+int new_vm(struct virtual_machine **vm){
+    *vm = NULL_VM;
+    *vm = (struct virtual_machine *) malloc(sizeof(struct virtual_machine));
+    if(*vm == NULL_VM){
+        return VM_ALLOCATION_FAILED;
     }
-    vm->status = VIRTUAL_MACHINE_RUN;
-    return vm;
+    (*vm)->status = VIRTUAL_MACHINE_RUN;
+    return VM_OK;
 }
 
 int set_memory(struct virtual_machine* vm, WORD *memory){

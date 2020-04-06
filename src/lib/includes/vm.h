@@ -24,6 +24,7 @@
 #define VM_MEMORY_UNINITIALIZED 1
 #define VM_INVALID_MEMORY 2
 #define VM_MEMORY_ALLOCATION_FAILED 3
+#define VM_ALLOCATION_FAILED 4
 
 enum vm_status { VIRTUAL_MACHINE_RUN, VIRTUAL_MACHINE_STOP };
 
@@ -42,7 +43,7 @@ int load_pc(struct virtual_machine *vm);
 /**
  * Creates a new virtual machine structure with uninitialized memory.
  */
-struct virtual_machine* new_vm();
+int new_vm(struct virtual_machine **vm);
 
 /**
  * Sets the memory for the virtual machine provided as argument.

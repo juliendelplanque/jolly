@@ -7,7 +7,10 @@
 
 int main(int argc, char ** argv){
     struct virtual_machine *jolly;
-    jolly = new_vm();
+    if(new_vm(&jolly) != VM_OK){
+        fprintf(stderr, "Failed to create VM, aborting.\n");
+        exit(-1);
+    }
     if(create_empty_memory(jolly) != VM_OK){
         fprintf(stderr, "Failed to create VM memory, aborting.\n");
         exit(-1);

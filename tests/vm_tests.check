@@ -6,7 +6,9 @@
 
 #test test_load_pc
     struct virtual_machine *jolly;
-    jolly = new_vm();
+    if(new_vm(&jolly) != VM_OK){
+        fail();
+    }
     if(create_empty_memory(jolly) != VM_OK){
         fail();
     }
@@ -19,7 +21,9 @@
 
 #test test_set_pc_address
     struct virtual_machine *jolly;
-    jolly = new_vm();
+    if(new_vm(&jolly) != VM_OK){
+        fail();
+    }
     if(create_empty_memory(jolly) != VM_OK){
         fail();
     }
@@ -29,7 +33,9 @@
 
 #test test_serialize_pc
     struct virtual_machine *jolly;
-    jolly = new_vm();
+    if(new_vm(&jolly) != VM_OK){
+        fail();
+    }
     if(create_empty_memory(jolly) != VM_OK){
         fail();
     }
