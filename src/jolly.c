@@ -8,10 +8,11 @@
 int main(int argc, char ** argv){
     struct virtual_machine *jolly;
     jolly = new_vm();
-    jolly->memory = (WORD *)malloc(MAX_MEMORY_SIZE);
-    if(jolly->memory == NULL){
-        fprintf(stderr, "Malloc failed.\n");
+    if(create_empty_memory(jolly) != VM_OK){
+        fprintf(stderr, "Failed to create VM memory, aborting.\n");
+        exit(-1);
     }
+
     jolly->memory[PC_HIGH_ADDRESS] = 0x0;
     jolly->memory[PC_MIDDLE_ADDRESS] = 0x42;
     jolly->memory[PC_LOW_ADDRESS] = 0x10;
@@ -22,7 +23,7 @@ int main(int argc, char ** argv){
     jolly->memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x01;
     jolly->memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = 0x00;
     load_pc(jolly);
-    printf("0x%06X\n", pc_address(jolly));
+    printf("0x%06X\n", get_pc_address(jolly));
     print_pc_address(jolly->memory, jolly->pc);
     execute_instruction(jolly);
 

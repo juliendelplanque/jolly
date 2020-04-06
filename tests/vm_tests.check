@@ -2,11 +2,12 @@
 
 #include <vm.h>
 
+#suite vm_tests
+
 #test test_load_pc
     struct virtual_machine *jolly;
     jolly = new_vm();
-    jolly->memory = (WORD *)malloc(MAX_MEMORY_SIZE);
-    if(jolly->memory == NULL){
+    if(create_empty_memory(jolly) != VM_OK){
         fail();
     }
     jolly->memory[PC_HIGH_ADDRESS] = 0x0;
@@ -14,4 +15,32 @@
     jolly->memory[PC_LOW_ADDRESS] = 0x10;
 
     load_pc(jolly);
-    fail_unless(pc_address(jolly) == 0x004210);
+    fail_unless(get_pc_address(jolly) == 0x004210);
+
+#test test_set_pc_address
+    struct virtual_machine *jolly;
+    jolly = new_vm();
+    if(create_empty_memory(jolly) != VM_OK){
+        fail();
+    }
+
+    set_pc_address(jolly, 0x001042);
+    fail_unless(get_pc_address(jolly) == 0x001042);
+
+#test test_serialize_pc
+    struct virtual_machine *jolly;
+    jolly = new_vm();
+    if(create_empty_memory(jolly) != VM_OK){
+        fail();
+    }
+
+    fail_unless(jolly->memory[PC_HIGH_ADDRESS] == 0x0);
+    fail_unless(jolly->memory[PC_MIDDLE_ADDRESS] == 0x0);
+    fail_unless(jolly->memory[PC_LOW_ADDRESS] == 0x0);
+
+    set_pc_address(jolly, 0x001042);
+    serialize_pc(jolly);
+
+    fail_unless(jolly->memory[PC_HIGH_ADDRESS] == 0x0);
+    fail_unless(jolly->memory[PC_MIDDLE_ADDRESS] == 0x10);
+    fail_unless(jolly->memory[PC_LOW_ADDRESS] == 0x42);

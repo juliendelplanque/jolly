@@ -32,11 +32,22 @@ struct virtual_machine* new_vm(){
     return vm;
 }
 
-struct virtual_machine* new_vm_with_memory(WORD *memory){
-    struct virtual_machine* vm = new_vm();
+int set_memory(struct virtual_machine* vm, WORD *memory){
+    if(memory == NULL){
+        return VM_INVALID_MEMORY;
+    }
     vm->memory = memory;
     load_pc(vm);
-    return vm;
+    return VM_OK;
+}
+
+int create_empty_memory(struct virtual_machine* vm){
+    WORD *memory;
+    memory = (WORD *)malloc(MAX_MEMORY_SIZE);
+    if(memory == NULL){
+        return VM_MEMORY_ALLOCATION_FAILED;
+    }
+    return set_memory(vm, memory);
 }
 
 void free_vm(struct virtual_machine *vm){
@@ -46,8 +57,16 @@ void free_vm(struct virtual_machine *vm){
     free(vm);
 }
 
-int pc_address(struct virtual_machine *vm){
+int get_pc_address(struct virtual_machine *vm){
     return ((unsigned)vm->pc)-((unsigned)vm->memory);
+}
+
+int set_pc_address(struct virtual_machine *vm, int pc_address){
+    if(vm->memory == NULL){
+        return VM_INVALID_MEMORY;
+    }
+    vm->pc = vm->memory + pc_address;
+    return VM_OK;
 }
 
 int serialize_pc(struct virtual_machine *vm){
@@ -55,7 +74,7 @@ int serialize_pc(struct virtual_machine *vm){
     if(vm->memory == NULL){
         return VM_MEMORY_UNINITIALIZED;
     }
-    pc = pc_address(vm);
+    pc = get_pc_address(vm);
     vm->memory[PC_HIGH_ADDRESS] = (pc >> DOUBLE_WORD_SIZE)
                                     & WORD_BIT_MASK;
     vm->memory[PC_MIDDLE_ADDRESS] = (pc >> WORD_SIZE)

@@ -22,6 +22,8 @@
 // Error codes
 #define VM_OK 0
 #define VM_MEMORY_UNINITIALIZED 1
+#define VM_INVALID_MEMORY 2
+#define VM_MEMORY_ALLOCATION_FAILED 3
 
 enum vm_status { VIRTUAL_MACHINE_RUN, VIRTUAL_MACHINE_STOP };
 
@@ -43,9 +45,17 @@ int load_pc(struct virtual_machine *vm);
 struct virtual_machine* new_vm();
 
 /**
- * Creates a new virtual machine structure with the memory provided as argument.
+ * Sets the memory for the virtual machine provided as argument.
+ * Loads the program counter serialized in this memory and stores it in
+ * the vm structure.
  */
-struct virtual_machine* new_vm_with_memory(WORD *memory);
+int set_memory(struct virtual_machine* vm, WORD *memory);
+
+/**
+ * Allocate memory of correct size for the virtual machine and sets it
+ * in the structure.
+ */
+int create_empty_memory(struct virtual_machine* vm);
 
 /**
  * Frees the virtual machine provided as argument.
@@ -56,7 +66,14 @@ void free_vm(struct virtual_machine *vm);
  * Returns an integer being the address of the program counter in Jolly's
  * memory.
  */
-int pc_address(struct virtual_machine *vm);
+int get_pc_address(struct virtual_machine *vm);
+
+/**
+ * Sets the program counter of the virtual machine provided as argument
+ * to pc_address.
+ * Does not modify the memory but needs it to be set before execution.
+ */
+int set_pc_address(struct virtual_machine *vm, int pc_address);
 
 /**
  * Serializes actual program counter of the virtual machine provided as argument
