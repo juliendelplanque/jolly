@@ -32,4 +32,9 @@ void primitive_put_char(struct virtual_machine *vm);
 
 void primitive_save_snapshot(struct virtual_machine *vm);
 
+/**
+ * Stops virtual machine execution.
+ */
+void primitive_stop(struct virtual_machine *vm);
+
 #endif

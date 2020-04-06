@@ -31,3 +31,8 @@ void primitive_save_snapshot(struct virtual_machine *vm){
     //TODO
     primitive_fail(vm);
 }
+
+void primitive_stop(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}

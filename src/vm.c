@@ -16,6 +16,36 @@ void print_value_at_address(WORD *memory, unsigned int address){
         memory[address]);
 }
 
+int load_pc(struct virtual_machine *vm){
+    vm->pc = vm->memory + (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
+                    | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
+                    | vm->memory[PC_LOW_ADDRESS]);
+    return 0;
+}
+
+struct virtual_machine* new_vm(){
+    struct virtual_machine* vm = (struct virtual_machine *) malloc(sizeof(struct virtual_machine));
+    if(vm == (struct virtual_machine*)NULL){
+        fprintf(stderr, "Malloc failed, unable to create VM.\n");
+    }
+    vm->status = VIRTUAL_MACHINE_RUN;
+    return vm;
+}
+
+struct virtual_machine* new_vm_with_memory(WORD *memory){
+    struct virtual_machine* vm = new_vm();
+    vm->memory = memory;
+    load_pc(vm);
+    return vm;
+}
+
+void free_vm(struct virtual_machine *vm){
+    if(vm->memory != NULL){
+        free(vm->memory);
+    }
+    free(vm);
+}
+
 int execute_primitive(struct virtual_machine *vm){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.
@@ -73,13 +103,6 @@ int execute_instruction(struct virtual_machine *vm){
     
     // Update program counter according to jump_address (absolute jump).
     vm->pc = vm->memory + jump_address;
-    return 0;
-}
-
-int load_pc(struct virtual_machine *vm){
-    vm->pc = vm->memory + (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
-                    | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
-                    | vm->memory[PC_LOW_ADDRESS]);
     return 0;
 }
 

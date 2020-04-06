@@ -19,6 +19,8 @@
 #define PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS 7
 #define PRIMITIVE_RESULT_POINTER_LOW_ADDRESS 8
 
+#define NULL_MEMORY (unsigned char *) NULL
+
 typedef unsigned char WORD;
 
 #endif

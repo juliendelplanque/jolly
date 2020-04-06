@@ -17,10 +17,36 @@
 #define JUMP_ADDRESS_MIDDLE_OFFSET 7
 #define JUMP_ADDRESS_LOW_OFFSET 8
 
+#define NULL_VM (struct virtual_machine *) NULL
+
+enum vm_status { VIRTUAL_MACHINE_RUN, VIRTUAL_MACHINE_STOP };
+
 struct virtual_machine{
     WORD *memory;
     WORD *pc;
+    enum vm_status status;
 };
+
+/**
+ * Loads the program counter stored in vm's memory into pc field of the vm
+ * structure.
+ */
+int load_pc(struct virtual_machine *vm);
+
+/**
+ * Creates a new virtual machine structure with uninitialized memory.
+ */
+struct virtual_machine* new_vm();
+
+/**
+ * Creates a new virtual machine structure with the memory provided as argument.
+ */
+struct virtual_machine* new_vm_with_memory(WORD *memory);
+
+/**
+ * Frees the virtual machine provided as argument.
+ */
+void free_vm(struct virtual_machine *vm);
 
 /**
  * Lookup the primitive corresponding to the id stored at address
@@ -32,8 +58,6 @@ struct virtual_machine{
 int execute_primitive(struct virtual_machine *vm);
 
 int execute_instruction(struct virtual_machine *vm);
-
-int load_pc(struct virtual_machine *vm);
 
 void print_pc_address(WORD *memory, WORD *pc);
 
