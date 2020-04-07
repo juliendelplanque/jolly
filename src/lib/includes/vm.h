@@ -93,6 +93,10 @@ int execute_primitive(struct virtual_machine *vm);
 
 int execute_instruction(struct virtual_machine *vm);
 
+int run(struct virtual_machine *vm);
+
+int load_image(struct virtual_machine *vm, char *filename);
+
 void print_pc_address(WORD *memory, WORD *pc);
 
 void print_value_at_address(WORD *memory, unsigned int address);

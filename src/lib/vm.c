@@ -1,6 +1,7 @@
 #include "vm.h"
 #include "memory.h"
 #include "primitives.h"
+#include "log.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -88,6 +89,7 @@ int execute_primitive(struct virtual_machine *vm){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.
     primitive_id = vm->memory[PRIMITIVE_CALL_ID_ADDRESS];
+    log_debug("Execute primitive %d", primitive_id);
     switch(primitive_id){
         case(PRIMITIVE_ID_NOPE):
             primitive_nop(vm);
@@ -96,6 +98,9 @@ int execute_primitive(struct virtual_machine *vm){
             primitive_fail(vm);
             break;
         case(PRIMITIVE_ID_PUT_CHAR):
+            primitive_put_char(vm);
+            break;
+        case(PRIMITIVE_ID_GET_CHAR):
             primitive_get_char(vm);
             break;
         default: // In case no primitive is associated to an id, the call fails.
@@ -139,12 +144,20 @@ int execute_instruction(struct virtual_machine *vm){
         | vm->pc[JUMP_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
         | vm->pc[JUMP_ADDRESS_LOW_OFFSET];
     
+    // log_debug("Jump to 0x%06X", jump_address);
     // Update program counter according to jump_address (absolute jump).
     vm->pc = vm->memory + jump_address;
-    return 0;
+    return VM_OK;
 }
 
-int load_snapshot(struct virtual_machine *vm, char *filename){
+int run(struct virtual_machine *vm){
+    while(vm->status == VIRTUAL_MACHINE_RUN){
+        execute_instruction(vm);
+    }
+    return VM_OK;
+}
+
+int load_image(struct virtual_machine *vm, char *filename){
     long length;
     FILE * f = fopen (filename, "rb");
 
@@ -152,16 +165,18 @@ int load_snapshot(struct virtual_machine *vm, char *filename){
         fseek(f, 0, SEEK_END);
         length = ftell(f);
         fseek(f, 0, SEEK_SET);
-        vm->memory = malloc(MAX_MEMORY_SIZE);
+        vm->memory = (WORD *)malloc(MAX_MEMORY_SIZE);
         if (vm->memory)
         {
             fread(vm->memory, 1, length, f);
         }
         fclose (f);
+    } else{
+        log_error("File does not exist %s", filename);
     }
 
     if (! vm->memory){
-        return -1;
+        return VM_MEMORY_ALLOCATION_FAILED;
     }
-    return 0;
+    return VM_OK;
 }
