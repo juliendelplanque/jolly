@@ -8,5 +8,5 @@ all:
 clean:
 	rm -fr build/ jolly
 
-test: build
+test: all
 	./build/tests/vm_tests
