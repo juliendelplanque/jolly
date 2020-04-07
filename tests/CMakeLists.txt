@@ -20,6 +20,8 @@ add_custom_command(
     DEPENDS vm_tests.check
 )
 
+include_directories(${CHECK_INCLUDE_DIR})
+
 # Since Check uses threads to parallelize the tests, it's mandatory
 # add pthread as a dependency, alongside the Check libraries.
 add_executable(vm_tests ${CMAKE_CURRENT_BINARY_DIR}/vm_tests.c)

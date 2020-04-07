@@ -17,7 +17,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} \
     -g \
-    -Wall -Werror -pedantic")
+    -Wall -Werror")
 
 # Enable coloring of logs.
 set(CMAKE_C_FLAGS
