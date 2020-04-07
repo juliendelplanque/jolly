@@ -19,6 +19,11 @@ set(CMAKE_C_FLAGS
     -g \
     -Wall -Werror -pedantic")
 
+# Enable coloring of logs.
+set(CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS} \
+    -DLOG_USE_COLOR")
+
 add_subdirectory(src)
 
 enable_testing()
