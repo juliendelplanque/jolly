@@ -18,9 +18,7 @@ void print_value_at_address(WORD *memory, unsigned int address){
 }
 
 int load_pc(struct virtual_machine *vm){
-    vm->pc = vm->memory + (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
-                    | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
-                    | vm->memory[PC_LOW_ADDRESS]);
+    vm->pc = vm->memory + extract_pc(vm);
     return 0;
 }
 
@@ -88,7 +86,7 @@ int serialize_pc(struct virtual_machine *vm){
 int execute_primitive(struct virtual_machine *vm){
     WORD primitive_id;
     // Retrieve the id of the primitive to be executed.
-    primitive_id = vm->memory[PRIMITIVE_CALL_ID_ADDRESS];
+    primitive_id = get_primitive_call_id(vm);
     log_debug("Execute primitive %d", primitive_id);
     switch(primitive_id){
         case(PRIMITIVE_ID_NOPE):
@@ -114,17 +112,17 @@ int execute_primitive(struct virtual_machine *vm){
             break;
     }
 
-    if (vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE){
+    if (did_primitive_failed(vm)){
         log_warn("Primitive %d failed.\n", primitive_id);
     }
 
     // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
     // like that, if the code sets activate the primitive handler by accident,
     // nope primitive will be executed which is handy as it does nothing.
-    vm->memory[PRIMITIVE_CALL_ID_ADDRESS] = PRIMITIVE_ID_NOPE;
+    set_primitive_call_id(vm, PRIMITIVE_ID_NOPE);
 
     // Set back the primitive trigger to PRIMITIVE_NOT_READY.
-    vm->memory[PRIMITIVE_IS_READY_ADDRESS] = PRIMITIVE_NOT_READY;
+    set_primitive_is_ready(vm, PRIMITIVE_NOT_READY);
     return 0;
 }
 
@@ -132,7 +130,7 @@ int execute_instruction(struct virtual_machine *vm){
     unsigned int from_address, to_address, jump_address;
     // Checks if vm needs to execute a primitive before executing an
     // instruction.
-    if(vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY){
+    if(is_primitive_ready(vm)){
         execute_primitive(vm);
     }
 
@@ -154,7 +152,6 @@ int execute_instruction(struct virtual_machine *vm){
         | vm->pc[JUMP_ADDRESS_MIDDLE_OFFSET] << WORD_SIZE
         | vm->pc[JUMP_ADDRESS_LOW_OFFSET];
     
-    // log_debug("Jump to 0x%06X", jump_address);
     // Update program counter according to jump_address (absolute jump).
     vm->pc = vm->memory + jump_address;
     return VM_OK;
