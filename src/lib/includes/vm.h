@@ -35,6 +35,52 @@ struct virtual_machine{
 };
 
 /**
+ * Macro to get the value of the primitive to call in virtual machine's memory
+ * easily.
+ */
+#define get_primitive_call_id(vm) \
+    (vm->memory[PRIMITIVE_CALL_ID_ADDRESS])
+
+/**
+ * Macro to set the value of the primitive to call in virtual machine's memory
+ * easily.
+ */
+#define set_primitive_call_id(vm, value) \
+    (vm->memory[PRIMITIVE_CALL_ID_ADDRESS] = value)
+
+/**
+ * Macro to set the value of the byte specifying if the primitive is ready to be
+ * called or not in virtual machine's memory easily.
+ */
+#define set_primitive_is_ready(vm, value) \
+    (vm->memory[PRIMITIVE_IS_READY_ADDRESS] = value)
+
+/**
+ * Macro expanding to an expression return TRUE if the primitive is ready to
+ * be executed by the virtual machine.
+ * Else the expanded expression returns FALSE.
+ */
+#define is_primitive_ready(vm) \
+    (vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY)
+
+/**
+ * Macro expanding to an expression return TRUE if the primitive failed during
+ * last execution.
+ * Else the expanded expression returns FALSE.
+ */
+#define did_primitive_failed(vm) \
+    (vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE)
+
+/**
+ * Macro to extract the value of the program counter from virtual machine's
+ * memory.
+ */
+#define extract_pc(vm) \
+    (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE \
+        | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE \
+        | vm->memory[PC_LOW_ADDRESS])
+
+/**
  * Loads the program counter stored in vm's memory into pc field of the vm
  * structure.
  */
