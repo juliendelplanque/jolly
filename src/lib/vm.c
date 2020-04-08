@@ -113,7 +113,7 @@ int execute_primitive(struct virtual_machine *vm){
     }
 
     if (did_primitive_failed(vm)){
-        log_warn("Primitive %d failed.\n", primitive_id);
+        log_error("Primitive %d failed.\n", primitive_id);
     }
 
     // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
