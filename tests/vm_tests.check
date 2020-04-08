@@ -40,13 +40,9 @@
         fail();
     }
 
-    fail_unless(jolly->memory[PC_HIGH_ADDRESS] == 0x0);
-    fail_unless(jolly->memory[PC_MIDDLE_ADDRESS] == 0x0);
-    fail_unless(jolly->memory[PC_LOW_ADDRESS] == 0x0);
+    fail_unless(extract_pc(jolly) == 0x000000);
 
     set_pc_address(jolly, 0x001042);
     serialize_pc(jolly);
 
-    fail_unless(jolly->memory[PC_HIGH_ADDRESS] == 0x0);
-    fail_unless(jolly->memory[PC_MIDDLE_ADDRESS] == 0x10);
-    fail_unless(jolly->memory[PC_LOW_ADDRESS] == 0x42);
+    fail_unless(extract_pc(jolly) == 0x001042);
