@@ -8,13 +8,22 @@
 
 int main(int argc, char ** argv){
     struct virtual_machine *jolly;
+    char *image_file_name;
 
     log_set_level(LOG_FATAL);
+
+    if(argc != 2){
+        fprintf(stderr, "Incorrect number of arguments. Need to specify image file to run, aborting.");
+        exit(-1);
+    }
+
+    image_file_name = argv[1];
+
     if(new_vm(&jolly) != VM_OK){
         fprintf(stderr, "Failed to create VM, aborting.\n");
         exit(-1);
     }
-    if(load_image(jolly, "/Users/julien/Documents/Perso/2020/Jolly/jolly/images/hello_world.jolly") != VM_OK){
+    if(load_image(jolly, image_file_name) != VM_OK){
         fprintf(stderr, "Failed to load VM memory from file, aborting.\n");
         exit(-1);
     }
