@@ -8,8 +8,11 @@ Install the [`check`](https://libcheck.github.io/check/) library, e.g. `brew ins
 
 ```shell
 make test
-./jolly
-```
+./jolly images/echo.jolly
+``` 
+
+## Demo images
+The `demo` folder contains image files that can be executed by Jolly VM.
 
 ## Features (early draft)
 
