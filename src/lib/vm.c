@@ -180,3 +180,4 @@ int load_image(struct virtual_machine *vm, char *filename){
     }
     return VM_OK;
 }
+ 

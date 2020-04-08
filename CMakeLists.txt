@@ -5,7 +5,7 @@ project(jolly)
 # Custom cmake modules
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# Configure wether libraries will be static or shared linked
+# Configure whether libraries will be static or shared linked
 set(BUILD_SHARED_LIBS OFF)
 
 # Enable debugging
@@ -17,7 +17,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} \
     -g \
-    -Wall -Werror -pedantic")
+    -Wall -Werror")
 
 # Enable coloring of logs.
 set(CMAKE_C_FLAGS

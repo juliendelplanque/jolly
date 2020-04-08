@@ -4,10 +4,11 @@ A [ByteByteJump](https://esolangs.org/wiki/ByteByteJump) virtual machine inspire
 
 ## Building and running
 
+Install the [`check`](https://libcheck.github.io/check/) library, e.g. `brew install check`.
+
 ```shell
-mkdir build && cd build
-cmake .. && make
-./src/jolly
+make test
+./jolly
 ```
 
 ## Features (early draft)
