@@ -103,9 +103,19 @@ int execute_primitive(struct virtual_machine *vm){
         case(PRIMITIVE_ID_GET_CHAR):
             primitive_get_char(vm);
             break;
+        case(PRIMITIVE_ID_STOP_VM):
+            primitive_stop(vm);
+            break;
+        case(PRIMITIVE_ID_SAVE_SNAPSHOT):
+            primitive_save_snapshot(vm);
+            break;
         default: // In case no primitive is associated to an id, the call fails.
             primitive_fail(vm);
             break;
+    }
+
+    if (vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE){
+        log_warn("Primitive %d failed.\n", primitive_id);
     }
 
     // Set the value of primitive to execute to PRIMITIVE_ID_NOPE
