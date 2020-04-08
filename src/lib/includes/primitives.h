@@ -9,6 +9,10 @@
 #define PRIMITIVE_ID_FAIL 1
 #define PRIMITIVE_ID_PUT_CHAR 2
 #define PRIMITIVE_ID_GET_CHAR 3
+#define PRIMITIVE_ID_STOP_VM 4
+#define PRIMITIVE_ID_SAVE_SNAPSHOT 5
+
+#define PRIMITIVE_ID_EXTENDED 255
 
 #define PRIMITIVE_OK_RESULT_CODE 0
 #define PRIMITIVE_FAILED_RESULT_CODE 1
@@ -37,5 +41,12 @@ void primitive_save_snapshot(struct virtual_machine *vm);
  * Stops virtual machine execution.
  */
 void primitive_stop(struct virtual_machine *vm);
+
+/**
+ * Execute an extended primitive. The code of the primitive to execute is stored
+ * in the 2 first bytes pointed by PRIMITIVE_RESULT pointer.
+ * The code of the extended primitive is encoded with big-endian convention.
+ */
+void primitive_extended(struct virtual_machine *vm);
 
 #endif
