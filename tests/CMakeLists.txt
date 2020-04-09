@@ -14,6 +14,7 @@ include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 
+# See https://crascit.com/2017/04/18/generated-sources-in-cmake-builds/
 add_custom_command(
     OUTPUT vm_tests.c
     COMMAND checkmk ${CMAKE_CURRENT_SOURCE_DIR}/vm_tests.check > ${CMAKE_CURRENT_BINARY_DIR}/vm_tests.c
