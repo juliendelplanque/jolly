@@ -10,7 +10,8 @@
 #define PRIMITIVE_ID_PUT_CHAR 2
 #define PRIMITIVE_ID_GET_CHAR 3
 #define PRIMITIVE_ID_STOP_VM 4
-#define PRIMITIVE_ID_SAVE_SNAPSHOT 5
+#define PRIMITIVE_ID_WRITE_FILE 5
+#define PRIMITIVE_ID_READ_FILE 6
 
 #define PRIMITIVE_ID_EXTENDED 255
 
@@ -35,7 +36,9 @@ void primitive_get_char(struct virtual_machine *vm);
 
 void primitive_put_char(struct virtual_machine *vm);
 
-void primitive_save_snapshot(struct virtual_machine *vm);
+void primitive_write_file(struct virtual_machine *vm);
+
+void primitive_read_file(struct virtual_machine *vm);
 
 /**
  * Stops virtual machine execution.

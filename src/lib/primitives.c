@@ -43,15 +43,20 @@ void primitive_put_char(struct virtual_machine *vm){
     }
 }
 
-void primitive_save_snapshot(struct virtual_machine *vm){
-    //TODO
-    primitive_fail(vm);
-}
-
 void primitive_stop(struct virtual_machine *vm){
     //TODO: handle exit code to return to the OS.
     vm->status = VIRTUAL_MACHINE_STOP;
     primitive_ok(vm);
+}
+
+void primitive_write_file(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_read_file(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
 }
 
 void primitive_extended(struct virtual_machine *vm){
