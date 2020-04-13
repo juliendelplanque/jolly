@@ -21,11 +21,24 @@ void primitive_nop(struct virtual_machine *vm){
 
 void primitive_get_char(struct virtual_machine *vm){
     unsigned int result_address;
+    FILE * input_stream;
     
     result_address = extract_result_address(vm);
     log_debug("    result_address = 0x%06X", result_address);
+    switch(vm->memory[result_address+1]){
+        case(PRIMITIVE_FILE_INPUT_STREAM_STDIN):
+            input_stream = stdin;
+            break;
+        default: // Unknown output stream.
+            log_debug(
+                "   Unknown input stream with id=%d.",
+                vm->memory[result_address+1]
+            );
+            primitive_fail(vm);
+            return;
+    }
 
-    vm->memory[result_address] = (WORD)getchar();
+    vm->memory[result_address] = (WORD)fgetc(input_stream);
     log_debug( "    char=%c.", vm->memory[result_address]);
     primitive_ok(vm);
 }
@@ -43,10 +56,10 @@ void primitive_put_char(struct virtual_machine *vm){
     log_debug( "   char_to_put=%c.", char_to_put);
 
     switch(vm->memory[result_address+1]){
-        case(PRIMITIVE_FILE_STREAM_STDOUT):
+        case(PRIMITIVE_FILE_OUTPUT_STREAM_STDOUT):
             output_stream = stdout;
             break;
-        case(PRIMITIVE_FILE_STREAM_STDERR):
+        case(PRIMITIVE_FILE_OUTPUT_STREAM_STDERR):
             output_stream = stderr;
             break;
         default: // Unknown output stream.
