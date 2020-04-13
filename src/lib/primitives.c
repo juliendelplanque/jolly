@@ -88,12 +88,12 @@ void primitive_stop(struct virtual_machine *vm){
     primitive_ok(vm);
 }
 
-void primitive_write_file(struct virtual_machine *vm){
+void primitive_open_file(struct virtual_machine *vm){
     //TODO
     primitive_fail(vm);
 }
 
-void primitive_read_file(struct virtual_machine *vm){
+void primitive_close_file(struct virtual_machine *vm){
     //TODO
     primitive_fail(vm);
 }

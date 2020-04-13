@@ -99,11 +99,11 @@ int execute_primitive(struct virtual_machine *vm){
         case(PRIMITIVE_ID_STOP_VM):
             primitive_stop(vm);
             break;
-        case(PRIMITIVE_ID_WRITE_FILE):
-            primitive_write_file(vm);
+        case(PRIMITIVE_ID_OPEN_FILE):
+            primitive_open_file(vm);
             break;
-        case(PRIMITIVE_ID_READ_FILE):
-            primitive_read_file(vm);
+        case(PRIMITIVE_ID_CLOSE_FILE):
+            primitive_close_file(vm);
             break;
         default: // In case no primitive is associated to an id, the call fails.
             primitive_fail(vm);
