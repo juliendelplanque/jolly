@@ -83,7 +83,6 @@ void primitive_put_char(struct virtual_machine *vm){
 }
 
 void primitive_stop(struct virtual_machine *vm){
-    //TODO: handle exit code to return to the OS.
     vm->status = VIRTUAL_MACHINE_STOP;
     primitive_ok(vm);
 }
