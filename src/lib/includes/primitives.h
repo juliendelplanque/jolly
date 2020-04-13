@@ -37,8 +37,34 @@ void primitive_fail(struct virtual_machine *vm);
  */
 void primitive_nop(struct virtual_machine *vm);
 
+/**
+ * A primitive that get a character from the stream with id provided as
+ * argument.
+ * 
+ * Reads the byte pointed by the result pointer, the integer stored there
+ * is the id of the stream to read from.
+ * Reads the next byte from this stream and stores it in the byte pointed
+ * by the result pointer (thus, the id of the input stream is erased!).
+ * 
+ * The special stream with id PRIMITIVE_FILE_INPUT_STREAM_STDIN is stdin
+ * stream.
+ */
 void primitive_get_char(struct virtual_machine *vm);
 
+/**
+ * A primitive that put the character provided as argument on the stream
+ * which id is provided as argument.
+ * 
+ * Reads the byte pointed by the result pointer, the integer stored there
+ * is the value of the character to put on the stream.
+ * Reads the byte pointed by the result pointer incremented of 1, the 
+ * integer stored there is the id of the stream to write to.
+ * 
+ * The special stream with id PRIMITIVE_FILE_OUTPUT_STREAM_STDOUT is sdout
+ * stream.
+ * The special stream with id PRIMITIVE_FILE_OUTPUT_STREAM_STDERR is sderr
+ * stream.
+ */
 void primitive_put_char(struct virtual_machine *vm);
 
 void primitive_open_file(struct virtual_machine *vm);
