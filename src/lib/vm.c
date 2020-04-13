@@ -6,17 +6,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void print_pc_address(WORD *memory, WORD *pc){
-    printf("pc = 0x%06X\n", ((unsigned)pc)-((unsigned)memory));
-}
+/* Debug functions declarations. ---------------------------------------------*/
+void print_pc_address(struct virtual_machine *vm);
+void print_value_at_address(struct virtual_machine *vm, unsigned int address);
 
-void print_value_at_address(WORD *memory, unsigned int address){
-    printf("memory[0x%06X] = %c | %d\n",
-        address,
-        memory[address],
-        memory[address]);
-}
 
+/* Implementation. -----------------------------------------------------------*/
 int load_pc(struct virtual_machine *vm){
     vm->pc = vm->memory + extract_pc(vm);
     return 0;
@@ -190,4 +185,18 @@ int load_image(struct virtual_machine *vm, char *filename){
     }
     return VM_OK;
 }
- 
+
+/**
+ * From here, a set of debug functions.
+ */
+
+void print_pc_address(struct virtual_machine *vm){
+    printf("pc = 0x%06X\n", get_pc_address(vm));
+}
+
+void print_value_at_address(struct virtual_machine *vm, unsigned int address){
+    printf("memory[0x%06X] = %c | %d\n",
+        address,
+        vm->memory[address],
+        vm->memory[address]);
+}
