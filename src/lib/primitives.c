@@ -23,18 +23,44 @@ void primitive_get_char(struct virtual_machine *vm){
     unsigned int result_address;
     
     result_address = extract_result_address(vm);
+    log_debug("    result_address = 0x%06X", result_address);
 
     vm->memory[result_address] = (WORD)getchar();
+    log_debug( "    char=%c.", vm->memory[result_address]);
     primitive_ok(vm);
 }
 
 void primitive_put_char(struct virtual_machine *vm){
     unsigned int result_address;
     int primitive_result;
+    char char_to_put;
+    FILE * output_stream;
     
     result_address = extract_result_address(vm);
-    
-    primitive_result = putchar(vm->memory[result_address]);
+    log_debug("    result_address = 0x%06X", result_address);
+
+    char_to_put = vm->memory[result_address];
+    log_debug( "   char_to_put=%c.", char_to_put);
+
+    switch(vm->memory[result_address+1]){
+        case(PRIMITIVE_FILE_STREAM_STDOUT):
+            output_stream = stdout;
+            break;
+        case(PRIMITIVE_FILE_STREAM_STDERR):
+            output_stream = stderr;
+            break;
+        default: // Unknown output stream.
+            log_debug(
+                "   Unknown output stream with id=%d.",
+                vm->memory[result_address+1]
+            );
+            primitive_fail(vm);
+            return;
+    }
+    log_debug(
+        "   filestream=%d.",
+        vm->memory[result_address+1]);
+    primitive_result = fputc(char_to_put, output_stream);
     
     if(primitive_result == EOF){
         primitive_fail(vm);
