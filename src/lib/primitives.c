@@ -54,23 +54,25 @@ void primitive_nop(struct virtual_machine *vm){
 
 void primitive_get_char(struct virtual_machine *vm){
     unsigned int result_address;
+    unsigned char stream_id;
     FILE * input_stream;
     
     result_address = extract_result_address(vm);
     log_debug("    result_address = 0x%06X", result_address);
-    switch(vm->memory[result_address+1]){
-        case(PRIMITIVE_FILE_STREAM_STDIN):
-            input_stream = stdin;
-            break;
-        default: // Unknown output stream.
-            log_debug(
-                "   Unknown input stream with id=%d.",
-                vm->memory[result_address+1]
+
+    stream_id = vm->memory[result_address+1];
+    input_stream = vm->file_streams[stream_id];
+
+    if(input_stream == NULL){
+        log_debug(
+            "   Attempt to read non allocated stream with id=%d.",
+            stream_id
             );
-            primitive_fail(vm);
-            return;
+        primitive_fail(vm);
+        return;
     }
 
+    log_debug("   filestream=%d.", stream_id);
     vm->memory[result_address] = (WORD)fgetc(input_stream);
     log_debug( "    char=%c.", vm->memory[result_address]);
     primitive_ok(vm);
@@ -78,6 +80,7 @@ void primitive_get_char(struct virtual_machine *vm){
 
 void primitive_put_char(struct virtual_machine *vm){
     unsigned int result_address;
+    unsigned char stream_id;
     int primitive_result;
     char char_to_put;
     FILE * output_stream;
@@ -88,24 +91,19 @@ void primitive_put_char(struct virtual_machine *vm){
     char_to_put = vm->memory[result_address];
     log_debug( "   char_to_put=%c.", char_to_put);
 
-    switch(vm->memory[result_address+1]){
-        case(PRIMITIVE_FILE_STREAM_STDOUT):
-            output_stream = stdout;
-            break;
-        case(PRIMITIVE_FILE_STREAM_STDERR):
-            output_stream = stderr;
-            break;
-        default: // Unknown output stream.
-            log_debug(
-                "   Unknown output stream with id=%d.",
-                vm->memory[result_address+1]
+    stream_id = vm->memory[result_address+1];
+    output_stream = vm->file_streams[stream_id];
+
+    if(output_stream == NULL){
+        log_debug(
+            "   Attempt to write to non allocated stream with id=%d.",
+            stream_id
             );
-            primitive_fail(vm);
-            return;
+        primitive_fail(vm);
+        return;
     }
-    log_debug(
-        "   filestream=%d.",
-        vm->memory[result_address+1]);
+    
+    log_debug("   filestream=%d.", stream_id);
     primitive_result = fputc(char_to_put, output_stream);
     
     if(primitive_result == EOF){
