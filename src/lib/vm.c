@@ -1,5 +1,4 @@
 #include "vm.h"
-#include "memory.h"
 #include "primitives.h"
 #include "log.h"
 
@@ -22,6 +21,9 @@ int new_vm(struct virtual_machine **vm){
     *vm = (struct virtual_machine *) malloc(sizeof(struct virtual_machine));
     if(*vm == NULL_VM){
         return VM_ALLOCATION_FAILED;
+    }
+    if(initialize_primitives_data(*vm) != 0){
+        return VM_ALLOCATION_FAILED; //TODO other error code.
     }
     (*vm)->status = VIRTUAL_MACHINE_RUN;
     return VM_OK;
@@ -46,6 +48,7 @@ int create_empty_memory(struct virtual_machine* vm){
 }
 
 void free_vm(struct virtual_machine *vm){
+    finalize_primitives_data(vm);
     if(vm->memory != NULL_MEMORY){
         free(vm->memory);
     }

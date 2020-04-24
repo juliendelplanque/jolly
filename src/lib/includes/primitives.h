@@ -21,10 +21,15 @@
 #define PRIMITIVE_NOT_READY 0
 #define PRIMITIVE_READY 1
 
-#define PRIMITIVE_FILE_OUTPUT_STREAM_STDOUT 0
-#define PRIMITIVE_FILE_OUTPUT_STREAM_STDERR 1
+#define PRIMITIVE_FILE_STREAM_STDIN 0
+#define PRIMITIVE_FILE_STREAM_STDOUT 1
+#define PRIMITIVE_FILE_STREAM_STDERR 2
 
-#define PRIMITIVE_FILE_INPUT_STREAM_STDIN 0
+struct virtual_machine;
+
+int initialize_primitives_data(struct virtual_machine *vm);
+
+int finalize_primitives_data(struct virtual_machine *vm);
 
 /**
  * A primitive that always fails.

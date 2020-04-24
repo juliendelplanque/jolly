@@ -10,6 +10,39 @@
 #define primitive_ok(vm) \
     vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE
 
+int initialize_primitives_data(struct virtual_machine *vm){
+    // Initialize special file streams.
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDIN] = stdin;
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDOUT] = stdout;
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDERR] = stderr;
+
+    // Initialize other file streams to be null.
+    for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        vm->file_streams[i] = NULL;
+    }
+    return 0;
+}
+
+int finalize_primitives_data(struct virtual_machine *vm){
+    // Close input file streams still open.
+    for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        int error;
+        if(vm->file_streams[i] != NULL){
+            if((error=fclose(vm->file_streams[i])) != 0){
+                log_error(
+                    "Error with code %d while closing output file stream %d.",
+                    error, i
+                );
+            }
+        }
+    }
+    return 0;
+}
+
 void primitive_fail(struct virtual_machine *vm){
     vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_FAILED_RESULT_CODE;
 }
@@ -26,7 +59,7 @@ void primitive_get_char(struct virtual_machine *vm){
     result_address = extract_result_address(vm);
     log_debug("    result_address = 0x%06X", result_address);
     switch(vm->memory[result_address+1]){
-        case(PRIMITIVE_FILE_INPUT_STREAM_STDIN):
+        case(PRIMITIVE_FILE_STREAM_STDIN):
             input_stream = stdin;
             break;
         default: // Unknown output stream.
@@ -56,10 +89,10 @@ void primitive_put_char(struct virtual_machine *vm){
     log_debug( "   char_to_put=%c.", char_to_put);
 
     switch(vm->memory[result_address+1]){
-        case(PRIMITIVE_FILE_OUTPUT_STREAM_STDOUT):
+        case(PRIMITIVE_FILE_STREAM_STDOUT):
             output_stream = stdout;
             break;
-        case(PRIMITIVE_FILE_OUTPUT_STREAM_STDERR):
+        case(PRIMITIVE_FILE_STREAM_STDERR):
             output_stream = stderr;
             break;
         default: // Unknown output stream.
@@ -93,6 +126,10 @@ void primitive_open_file(struct virtual_machine *vm){
 }
 
 void primitive_close_file(struct virtual_machine *vm){
+    unsigned int result_address;
+
+    result_address = extract_result_address(vm);
+    log_debug("    result_address = 0x%06X", result_address);
     //TODO
     primitive_fail(vm);
 }

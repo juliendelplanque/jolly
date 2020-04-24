@@ -3,6 +3,8 @@
 #define VM_H
 
 #include "memory.h"
+#include "primitives.h"
+#include <stdio.h>
 
 // Offsets to read an instruction.
 #define FROM_ADDRESS_HIGH_OFFSET 0
@@ -26,12 +28,18 @@
 #define VM_MEMORY_ALLOCATION_FAILED 3
 #define VM_ALLOCATION_FAILED 4
 
+#define FILE_STREAMS_SIZE 255
+
 enum vm_status { VIRTUAL_MACHINE_RUN, VIRTUAL_MACHINE_STOP };
 
 struct virtual_machine{
     WORD *memory;
     WORD *pc;
     enum vm_status status;
+    /**
+     * Array of file streams manipulated by primitive_get_char.
+     */
+    FILE *file_streams[FILE_STREAMS_SIZE];
 };
 
 /**
