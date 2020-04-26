@@ -108,6 +108,9 @@ int execute_primitive(struct virtual_machine *vm){
         case(PRIMITIVE_ID_CLOSE_FILE):
             primitive_close_file(vm);
             break;
+        case(PRIMITIVE_ID_IS_FILE_OPEN):
+            primitive_is_file_open(vm);
+            break;
         default: // In case no primitive is associated to an id, the call fails.
             primitive_fail(vm);
             break;

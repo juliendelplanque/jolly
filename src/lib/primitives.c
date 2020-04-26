@@ -2,6 +2,8 @@
 #include "log.h"
 #include <stdio.h>
 
+#define ERROR_NO_STREAM_AVAILABLE (-1)
+
 #define extract_result_address(vm) \
     vm->memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] << DOUBLE_WORD_SIZE \
         | vm->memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] << WORD_SIZE \
@@ -118,18 +120,103 @@ void primitive_stop(struct virtual_machine *vm){
     primitive_ok(vm);
 }
 
+unsigned char find_available_stream_slot(struct virtual_machine *vm){
+    for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        if(vm->file_streams[i] == NULL){
+            return i;
+        }
+    }
+    return ERROR_NO_STREAM_AVAILABLE;
+}
+
 void primitive_open_file(struct virtual_machine *vm){
-    //TODO
-    primitive_fail(vm);
+    unsigned int result_address;
+    int stream_id;
+    unsigned char file_open_mode_code;
+    char *file_open_mode;
+    char *file_path;
+    // First, try to find an available slot in VM streams to allocate the new
+    // file stream.
+    stream_id = find_available_stream_slot(vm);
+    if(stream_id == ERROR_NO_STREAM_AVAILABLE){
+        log_debug(
+            "   No more stream slot available for the virtual machine.",
+            stream_id);
+        primitive_fail(vm);
+        return;
+    }
+    // Then read primitives arguments.
+    result_address = extract_result_address(vm);
+    // First, the file open mode.
+    file_open_mode_code = vm->memory[result_address];
+    switch(file_open_mode_code){
+        case(PRIMITIVE_FILE_MODE_READ):
+            file_open_mode = "r";
+            break;
+        case(PRIMITIVE_FILE_MODE_WRITE):
+            file_open_mode = "w";
+            break;
+        case(PRIMITIVE_FILE_MODE_APPEND):
+            file_open_mode = "a";
+            break;
+        default:
+            log_error("   Unknown file open mode code: %d", file_open_mode_code);
+            primitive_fail(vm);
+            return;
+    }
+    // Then, the null terminated string located just after.
+    // This string contains the path to the file.
+    file_path = (char *)vm->memory + result_address + 1;
+
+    vm->file_streams[stream_id] = fopen(file_path, file_open_mode);
+
+    if (vm->file_streams[stream_id] == NULL){
+        log_error("    fopen call failed.");
+        primitive_fail(vm);
+    }
 }
 
 void primitive_close_file(struct virtual_machine *vm){
     unsigned int result_address;
+    unsigned char stream_id;
+    int primitive_result;
+    FILE * file_stream;
 
     result_address = extract_result_address(vm);
     log_debug("    result_address = 0x%06X", result_address);
-    //TODO
-    primitive_fail(vm);
+    stream_id = vm->memory[result_address];
+    file_stream = vm->file_streams[stream_id];
+
+    if(file_stream == NULL){
+        log_debug(
+            "   Attempt to close non allocated stream with id=%d.",
+            stream_id);
+        primitive_fail(vm);
+        return;
+    }
+    primitive_result = fclose(file_stream);
+    if (primitive_result != 0){
+        log_debug(
+            "   fclose function failed with error code=%d.",
+            primitive_result);
+    }
+}
+
+void primitive_is_file_open(struct virtual_machine *vm){
+    unsigned int result_address;
+    unsigned char stream_id;
+
+    result_address = extract_result_address(vm);
+    log_debug("    result_address = 0x%06X", result_address);
+    stream_id = vm->memory[result_address];
+    
+    if(vm->file_streams[stream_id] == NULL){
+        vm->memory[result_address] = PRIMITIVE_FILE_IS_CLOSED;
+    } else{
+        vm->memory[result_address] = PRIMITIVE_FILE_IS_OPEN;
+    }
 }
 
 void primitive_extended(struct virtual_machine *vm){

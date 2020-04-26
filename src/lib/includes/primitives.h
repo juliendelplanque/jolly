@@ -12,6 +12,7 @@
 #define PRIMITIVE_ID_STOP_VM 4
 #define PRIMITIVE_ID_OPEN_FILE 5
 #define PRIMITIVE_ID_CLOSE_FILE 6
+#define PRIMITIVE_ID_IS_FILE_OPEN 7
 
 #define PRIMITIVE_ID_EXTENDED 255
 
@@ -24,6 +25,13 @@
 #define PRIMITIVE_FILE_STREAM_STDIN 0
 #define PRIMITIVE_FILE_STREAM_STDOUT 1
 #define PRIMITIVE_FILE_STREAM_STDERR 2
+
+#define PRIMITIVE_FILE_IS_CLOSED 0
+#define PRIMITIVE_FILE_IS_OPEN 1
+
+#define PRIMITIVE_FILE_MODE_READ 0
+#define PRIMITIVE_FILE_MODE_WRITE 1
+#define PRIMITIVE_FILE_MODE_APPEND 2
 
 struct virtual_machine;
 
@@ -46,7 +54,7 @@ void primitive_nop(struct virtual_machine *vm);
  * A primitive that get a character from the stream with id provided as
  * argument.
  * 
- * Reads the byte pointed by the result pointer, the integer stored there
+ * Reads the byte pointed by the result pointer, the char stored there
  * is the id of the stream to read from.
  * Reads the next byte from this stream and stores it in the byte pointed
  * by the result pointer (thus, the id of the input stream is erased!).
@@ -60,10 +68,10 @@ void primitive_get_char(struct virtual_machine *vm);
  * A primitive that put the character provided as argument on the stream
  * which id is provided as argument.
  * 
- * Reads the byte pointed by the result pointer, the integer stored there
+ * Reads the byte pointed by the result pointer, the char stored there
  * is the value of the character to put on the stream.
  * Reads the byte pointed by the result pointer incremented of 1, the 
- * integer stored there is the id of the stream to write to.
+ * char stored there is the id of the stream to write to.
  * 
  * The special stream with id PRIMITIVE_FILE_OUTPUT_STREAM_STDOUT is sdout
  * stream.
@@ -75,6 +83,19 @@ void primitive_put_char(struct virtual_machine *vm);
 void primitive_open_file(struct virtual_machine *vm);
 
 void primitive_close_file(struct virtual_machine *vm);
+
+/**
+ * A primitive that determinate if the file stream with id provided as argument
+ * is open or not.
+ * 
+ * Reads the byte pointed by the result pointer, the char stored there
+ * is id of the stream to determinate if open or not.
+ * 
+ * Stores PRIMITIVE_FILE_IS_CLOSED or PRIMITIVE_FILE_IS_OPEN in the byte pointed
+ * by the result pointer (thus, the id of the stream is erased!).
+ * 
+ */
+void primitive_is_file_open(struct virtual_machine *vm);
 
 /**
  * Stops virtual machine execution.
