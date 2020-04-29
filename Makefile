@@ -10,3 +10,4 @@ clean:
 
 test: all
 	./build/tests/vm_tests
+	./build/tests/primitives_tests

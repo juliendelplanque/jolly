@@ -21,6 +21,12 @@ add_custom_command(
     DEPENDS vm_tests.check
 )
 
+add_custom_command(
+    OUTPUT primitives_tests.c
+    COMMAND checkmk ${CMAKE_CURRENT_SOURCE_DIR}/primitives_tests.check > ${CMAKE_CURRENT_BINARY_DIR}/primitives_tests.c
+    DEPENDS primitives_tests.check
+)
+
 include_directories(${CHECK_INCLUDE_DIR})
 
 # Since Check uses threads to parallelize the tests, it's mandatory
@@ -28,8 +34,14 @@ include_directories(${CHECK_INCLUDE_DIR})
 add_executable(vm_tests ${CMAKE_CURRENT_BINARY_DIR}/vm_tests.c)
 target_link_libraries(vm_tests jolly ${CHECK_LIBRARIES} pthread)
 
+add_executable(primitives_tests ${CMAKE_CURRENT_BINARY_DIR}/primitives_tests.c)
+target_link_libraries(primitives_tests jolly ${CHECK_LIBRARIES} pthread)
+
 # Create testing target and redirect its output to `Testing` folder
 add_test(NAME vm_tests COMMAND vm_tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
+
+add_test(NAME primitives_tests COMMAND primitives_tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
+
 # set_tests_properties(vm_tests PROPERTIES TIMEOUT 30) 
 
 # Aditional Valgrind test to check memory leaks in code

@@ -28,6 +28,10 @@ int initialize_primitives_data(struct virtual_machine *vm){
 }
 
 int finalize_primitives_data(struct virtual_machine *vm){
+    // Remove reference to special streams.
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDIN] = NULL;
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDOUT] = NULL;
+    vm->file_streams[PRIMITIVE_FILE_STREAM_STDERR] = NULL;
     // Close input file streams still open.
     for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
         i<FILE_STREAMS_SIZE;
@@ -39,6 +43,8 @@ int finalize_primitives_data(struct virtual_machine *vm){
                     "Error with code %d while closing output file stream %d.",
                     error, i
                 );
+            } else{
+                vm->file_streams[i] = NULL;
             }
         }
     }

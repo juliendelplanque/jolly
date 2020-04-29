@@ -46,3 +46,12 @@
     serialize_pc(jolly);
 
     fail_unless(extract_pc(jolly) == 0x001042);
+
+#test test_new_vm_status
+    struct virtual_machine *vm;
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+
+    fail_unless(vm->status == VIRTUAL_MACHINE_RUN);
+    free_vm(vm);
