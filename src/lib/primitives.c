@@ -181,7 +181,9 @@ void primitive_open_file(struct virtual_machine *vm){
     if (vm->file_streams[stream_id] == NULL){
         log_error("    fopen call failed.");
         primitive_fail(vm);
+        return;
     }
+    vm->memory[result_address] = stream_id;
 }
 
 void primitive_close_file(struct virtual_machine *vm){

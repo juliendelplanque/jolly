@@ -137,6 +137,7 @@
     memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
     memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
     memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_READ;
     set_memory(vm, memory);
 
     // Make sure file_streams[3] was not used before primitive call.
@@ -146,6 +147,7 @@
 
     // Make sure file stream is allocated.
     fail_unless(vm->file_streams[3] != NULL);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
     
     // Make sure file is open in read mode.
     fail_unless(fgetc(vm->file_streams[3]) == 'F');
