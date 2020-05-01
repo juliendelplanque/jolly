@@ -80,6 +80,26 @@ void primitive_get_char(struct virtual_machine *vm);
  */
 void primitive_put_char(struct virtual_machine *vm);
 
+/**
+ * A primitive that open a new filestream for the file path provided as argument
+ * and with the open mode provided as argument.
+ * 
+ * Reads the byte pointed by the result pointer, the value stored there is
+ * the open mode of the file.
+ * Currently, this value can be one of the following:
+ * - PRIMITIVE_FILE_MODE_READ
+ * - PRIMITIVE_FILE_MODE_WRITE
+ * - PRIMITIVE_FILE_MODE_APPEND
+ * 
+ * Then, reads the null-terminated ASCII string directly consecutive to the open
+ * mode byte in memory.
+ * This string encodes the path of the file to open.
+ * 
+ * If the primitive succeed, the id of the stream open is written in the byte
+ * pointed by the result pointer.
+ * This stream id will be needed by primitives that read from or write bytes to
+ * file streams.
+ */
 void primitive_open_file(struct virtual_machine *vm);
 
 void primitive_close_file(struct virtual_machine *vm);
