@@ -9,5 +9,5 @@ clean:
 	rm -fr build/ jolly
 
 test: all
-	./build/tests/vm_tests
-	./build/tests/primitives_tests
+	cd build && env CTEST_OUTPUT_ON_FAILURE=1 ctest 
+	cd ..
