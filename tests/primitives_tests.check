@@ -115,8 +115,8 @@
 
 #test test_primitive_open_file_read
     struct virtual_machine *vm;
-    int file_path_length = 14;
     char *file_path = "test_read.txt";
+    int file_path_length = strlen(file_path) + 1;
     // Create file to read from.
     FILE * fp;
     fp = fopen (file_path,"w");
@@ -124,7 +124,7 @@
     fclose (fp);
 
     // Need a memory that can store open mode (1 byte) for the file and the
-    // null-terminated string for the file path ("test_read.txt" = 14 bytes).
+    // null-terminated string for the file path.
     WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
     if(new_vm(&vm) != VM_OK){
         fail();
@@ -145,6 +145,9 @@
 
     primitive_open_file(vm);
 
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
     // Make sure file stream is allocated.
     fail_unless(vm->file_streams[3] != NULL);
     fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
@@ -157,10 +160,240 @@
     free(vm);
 
 #test test_primitive_open_file_write
-    fail();
+    struct virtual_machine *vm;
+    char *file_path = "test_write.txt";
+    int file_path_length = strlen(file_path) + 1;
+    FILE * fp;
 
-#test test_primitive_open_file_append
-    fail();
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_WRITE;
+    set_memory(vm, memory);
+
+    // Make sure file_streams[3] was not used before primitive call.
+    fail_unless(vm->file_streams[3] == NULL);
+
+    primitive_open_file(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is allocated.
+    fail_unless(vm->file_streams[3] != NULL);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
+    
+    // Make sure file is open in write mode.
+    fail_unless(fputc('a', vm->file_streams[3]) != EOF);
+    // Flush buffer to be able to read file.
+    fail_unless(fflush(vm->file_streams[3]) == 0);
+
+    // Create file to read from.
+    fp = fopen(file_path, "r");
+    fail_unless((char)fgetc(fp) == 'a'); 
+    fclose(fp);
+
+    remove(file_path);
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_open_file_append_no_file
+    struct virtual_machine *vm;
+    char *file_path = "test_append_no_file.txt";
+    int file_path_length = strlen(file_path) + 1;
+    FILE * fp;
+    
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_APPEND;
+    set_memory(vm, memory);
+
+    // Make sure file_streams[3] was not used before primitive call.
+    fail_unless(vm->file_streams[3] == NULL);
+
+    primitive_open_file(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is allocated.
+    fail_unless(vm->file_streams[3] != NULL);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
+    
+    // Make sure file is open in append mode.
+    fail_unless(fputc('a', vm->file_streams[3]) != EOF);
+    // Flush buffer to be able to read file.
+    fail_unless(fflush(vm->file_streams[3]) == 0);
+
+    // Create file to read from.
+    fp = fopen(file_path, "r");
+    fail_unless((char)fgetc(fp) == 'a'); 
+    fclose(fp);
+
+    remove(file_path);
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_open_file_append_existing_file
+    struct virtual_machine *vm;
+    char *file_path = "test_append_existing_file.txt";
+    int file_path_length = strlen(file_path) + 1;
+
+    // Create pre-existing file to write on.
+    FILE * fp;
+    fp = fopen(file_path, "w");
+    fail_unless(fputc('b', fp) != EOF); 
+    fclose(fp);
+    
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_APPEND;
+    set_memory(vm, memory);
+
+    // Make sure file_streams[3] was not used before primitive call.
+    fail_unless(vm->file_streams[3] == NULL);
+
+    primitive_open_file(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is allocated.
+    fail_unless(vm->file_streams[3] != NULL);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
+    
+    // Make sure file is open in append mode.
+    fail_unless(fputc('a', vm->file_streams[3]) != EOF);
+    // Flush buffer to be able to read file.
+    fail_unless(fflush(vm->file_streams[3]) == 0);
+
+    // Create file to read from.
+    fp = fopen(file_path, "r");
+    fail_unless((char)fgetc(fp) == 'b');
+    fail_unless((char)fgetc(fp) == 'a'); 
+    fclose(fp);
+
+    remove(file_path);
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_open_file_no_stream_available
+    struct virtual_machine *vm;
+    char *file_path = "test_open_file_no_stream_available.txt";
+    int file_path_length = strlen(file_path) + 1;
+    
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_WRITE;
+    set_memory(vm, memory);
+
+    // Fill all stream slots with stdout
+    for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        vm->file_streams[i] = stdout;
+    }
+
+    // Make sure not slot is available.
+    for(int i=0;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        fail_unless(vm->file_streams[i] != NULL);
+    }
+
+    primitive_open_file(vm);
+
+    // Make sure primitive failed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE);
+
+    // Undo mess with stream slots
+    for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
+        i<FILE_STREAMS_SIZE;
+        i++){
+        vm->file_streams[i] = NULL;
+    }
+
+    remove(file_path);
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_open_file_wrong_open_mode
+    struct virtual_machine *vm;
+    char *file_path = "test_open_file_wrong_open_mode.txt";
+    int file_path_length = strlen(file_path) + 1;
+    
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = 255;
+    set_memory(vm, memory);
+
+    primitive_open_file(vm);
+
+    // Make sure primitive failed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE);
+
+    remove(file_path);
+    finalize_primitives_data(vm);
+    free(vm);
 
 #test test_primitive_close_file
     fail();
@@ -168,5 +401,101 @@
 #test test_primitive_is_file_open
     fail();
 
+#test test_primitive_is_file_open_stdin
+    struct virtual_machine *vm;
+
+    // Need a memory that can store file stream id.
+    WORD memory[MINIMAL_MEMORY_SIZE+1];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_STREAM_STDIN;
+    set_memory(vm, memory);
+
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is open.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_OPEN);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_is_file_open_stdout
+    struct virtual_machine *vm;
+
+    // Need a memory that can store file stream id.
+    WORD memory[MINIMAL_MEMORY_SIZE+1];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_STREAM_STDOUT;
+    set_memory(vm, memory);
+
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is open.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_OPEN);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_is_file_open_stderr
+    struct virtual_machine *vm;
+
+    // Need a memory that can store file stream id.
+    WORD memory[MINIMAL_MEMORY_SIZE+1];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_STREAM_STDERR;
+    set_memory(vm, memory);
+
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is open.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_OPEN);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
+/*
+ * Extended primitive is not supported yet. So this primitive should always fail.
+ */
 #test test_primitive_extended
-    fail();
+    struct virtual_machine *vm;
+
+    // Need a memory for the VM.
+    WORD memory[MINIMAL_MEMORY_SIZE];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    set_memory(vm, memory);
+
+    primitive_extended(vm);
+
+    // Make sure primitive failed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE);
+    
+    finalize_primitives_data(vm);
+    free(vm);

@@ -126,7 +126,7 @@ void primitive_stop(struct virtual_machine *vm){
     primitive_ok(vm);
 }
 
-unsigned char find_available_stream_slot(struct virtual_machine *vm){
+int find_available_stream_slot(struct virtual_machine *vm){
     for(int i=PRIMITIVE_FILE_STREAM_STDERR+1;
         i<FILE_STREAMS_SIZE;
         i++){
@@ -184,6 +184,7 @@ void primitive_open_file(struct virtual_machine *vm){
         return;
     }
     vm->memory[result_address] = stream_id;
+    primitive_ok(vm);
 }
 
 void primitive_close_file(struct virtual_machine *vm){
