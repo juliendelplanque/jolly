@@ -145,10 +145,28 @@ int serialize_pc(struct virtual_machine *vm);
  */
 int execute_primitive(struct virtual_machine *vm);
 
+/**
+ * Execute the next instruction pointed by the virtual machine program counter.
+ * If a primitive is ready to be executed, executes the primitive before
+ * executing the instruction.
+ * 
+ * Returns VM_OK.
+ */
 int execute_instruction(struct virtual_machine *vm);
 
+/**
+ * Run the virtual machine as long as its status is VIRTUAL_MACHINE_RUN.
+ * 
+ * Returns VM_OK.
+ */
 int run(struct virtual_machine *vm);
 
+/**
+ * Load the image stored at the file path provided as argument.
+ * 
+ * Return VM_OK is everything went well.
+ * Might return VM_MEMORY_ALLOCATION_FAILED if memory allocation failed.
+ */
 int load_image(struct virtual_machine *vm, char *filename);
 
 #endif
