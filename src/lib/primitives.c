@@ -70,7 +70,7 @@ void primitive_get_char(struct virtual_machine *vm){
     result_address = extract_result_address(vm);
     log_debug("    result_address = 0x%06X", result_address);
 
-    stream_id = vm->memory[result_address+1];
+    stream_id = vm->memory[result_address];
     input_stream = vm->file_streams[stream_id];
 
     if(input_stream == NULL){

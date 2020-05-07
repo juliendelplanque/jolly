@@ -116,9 +116,6 @@
     // Make sure primitive succeed
     fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
 
-    // Move filestream id to correct location for argument.
-    memory[MINIMAL_MEMORY_SIZE+1] = memory[MINIMAL_MEMORY_SIZE];
-
     primitive_get_char(vm);
 
     // Make sure primitive succeed
