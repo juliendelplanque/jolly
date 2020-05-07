@@ -396,10 +396,113 @@
     free(vm);
 
 #test test_primitive_close_file
-    fail();
+    struct virtual_machine *vm;
+    char *file_path = "test_close_file.txt";
+    int file_path_length = strlen(file_path) + 1;
+
+    // Need a memory that can store open mode (1 byte) for the file and
+    // 1 byte for the stream id.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_WRITE;
+    set_memory(vm, memory);
+
+    // First open a file.
+    primitive_open_file(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+
+    // Then test the file is correctly open.
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is open.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_OPEN);
+
+    // From here id of the stream is at memory[MINIMAL_MEMORY_SIZE]
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+
+    // Then close the file.
+    primitive_close_file(vm);
+
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+
+    // Then test the file is correctly closed.
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is closed.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_CLOSED);
+
+    finalize_primitives_data(vm);
+    free(vm);
 
 #test test_primitive_is_file_open
-    fail();
+    struct virtual_machine *vm;
+    char *file_path = "test_is_file_open.txt";
+    int file_path_length = strlen(file_path) + 1;
+
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_WRITE;
+    set_memory(vm, memory);
+
+    primitive_open_file(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // memory[MINIMAL_MEMORY_SIZE] contains stream id because of previous
+    // primitive call
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+
+    primitive_is_file_open(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Make sure file stream is open.
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == PRIMITIVE_FILE_IS_OPEN);
+
+    finalize_primitives_data(vm);
+    free(vm);
 
 #test test_primitive_is_file_open_stdin
     struct virtual_machine *vm;

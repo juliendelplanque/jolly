@@ -102,6 +102,12 @@ void primitive_put_char(struct virtual_machine *vm);
  */
 void primitive_open_file(struct virtual_machine *vm);
 
+/**
+ * A primitive that close the filestream for id provided as argument.
+ * 
+ * Reads the byte pointed by the result pointer, the value stored there is
+ * the id of the filestream.
+ */
 void primitive_close_file(struct virtual_machine *vm);
 
 /**

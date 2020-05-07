@@ -211,6 +211,7 @@ void primitive_close_file(struct virtual_machine *vm){
             "   fclose function failed with error code=%d.",
             primitive_result);
     }
+    vm->file_streams[stream_id] = NULL;
 }
 
 void primitive_is_file_open(struct virtual_machine *vm){
