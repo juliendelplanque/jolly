@@ -86,7 +86,48 @@
     free(vm);
 
 #test test_primitive_get_char
-    fail();
+    struct virtual_machine *vm;
+    char *file_path = "test_get_char.txt";
+    int file_path_length = strlen(file_path) + 1;
+    // Create file to read from.
+    FILE * fp;
+    fp = fopen (file_path,"w");
+    fputc('a', fp); 
+    fclose(fp);
+
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_READ;
+    set_memory(vm, memory);
+
+    primitive_open_file(vm);
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // Move filestream id to correct location for argument.
+    memory[MINIMAL_MEMORY_SIZE+1] = memory[MINIMAL_MEMORY_SIZE];
+
+    primitive_get_char(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 'a');
+
+    finalize_primitives_data(vm);
+    remove(file_path);
+    free(vm);
 
 #test test_primitive_put_char
     struct virtual_machine *vm;
@@ -160,7 +201,6 @@
 
     finalize_primitives_data(vm);
     free(vm);
-
 
 #test test_primitive_open_file_read
     struct virtual_machine *vm;

@@ -216,6 +216,7 @@ void primitive_close_file(struct virtual_machine *vm){
             primitive_result);
     }
     vm->file_streams[stream_id] = NULL;
+    primitive_ok(vm);
 }
 
 void primitive_is_file_open(struct virtual_machine *vm){
@@ -231,6 +232,7 @@ void primitive_is_file_open(struct virtual_machine *vm){
     } else{
         vm->memory[result_address] = PRIMITIVE_FILE_IS_OPEN;
     }
+    primitive_ok(vm);
 }
 
 void primitive_extended(struct virtual_machine *vm){
