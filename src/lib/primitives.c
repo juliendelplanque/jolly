@@ -1,6 +1,8 @@
 #include "primitives.h"
 #include "log.h"
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
 #define ERROR_NO_STREAM_AVAILABLE (-1)
 
@@ -115,6 +117,7 @@ void primitive_put_char(struct virtual_machine *vm){
     primitive_result = fputc(char_to_put, output_stream);
     
     if(primitive_result == EOF){
+        log_debug("    %s", strerror(errno));
         primitive_fail(vm);
     } else{
         primitive_ok(vm);
@@ -180,6 +183,7 @@ void primitive_open_file(struct virtual_machine *vm){
 
     if (vm->file_streams[stream_id] == NULL){
         log_error("    fopen call failed.");
+        log_debug("    %s", strerror(errno));
         primitive_fail(vm);
         return;
     }

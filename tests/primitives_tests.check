@@ -89,7 +89,56 @@
     fail();
 
 #test test_primitive_put_char
-    fail();
+    struct virtual_machine *vm;
+    char *file_path = "test_put_char.txt";
+    int file_path_length = strlen(file_path) + 1;
+    FILE * fp;
+
+    // Need a memory that can store open mode (1 byte) for the file and the
+    // null-terminated string for the file path.
+    WORD memory[MINIMAL_MEMORY_SIZE+1+file_path_length];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[MINIMAL_MEMORY_SIZE+1] = PRIMITIVE_FILE_MODE_READ;
+    for(int i = 0; i<file_path_length; i++){
+        memory[MINIMAL_MEMORY_SIZE+1+i] = file_path[i];
+    }
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = PRIMITIVE_FILE_MODE_WRITE;
+    set_memory(vm, memory);
+
+    primitive_open_file(vm);
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    // printf("stream_id=%d\n", memory[MINIMAL_MEMORY_SIZE]);
+    
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 3);
+    fflush(vm->file_streams[3]);
+
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    // Move filestream id to correct location for argument.
+    memory[MINIMAL_MEMORY_SIZE+1] = memory[MINIMAL_MEMORY_SIZE];
+    // Set character to put.
+    memory[MINIMAL_MEMORY_SIZE] = 'a';
+
+    primitive_put_char(vm);
+
+    finalize_primitives_data(vm);
+    free(vm);
+
+    // Read character from file to ensure it is 'a'.
+    fp = fopen(file_path, "r");
+    fail_unless(fgetc(fp) == 'a');
+    fail_unless(fgetc(fp) == EOF);
+    fclose (fp);
+
+    remove(file_path);
 
 #test test_primitive_stop
     struct virtual_machine *vm;
