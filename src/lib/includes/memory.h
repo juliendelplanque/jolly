@@ -67,7 +67,6 @@
  */
 typedef unsigned char WORD;
 
-
 /**
  * Let us define a null type for the memory of Jolly.
  * This macro just casts NULL pointer into (WORD *).
