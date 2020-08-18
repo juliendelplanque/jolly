@@ -59,8 +59,19 @@
  */
 #define PRIMITIVE_RESULT_POINTER_LOW_ADDRESS 0x000008
 
-#define NULL_MEMORY (WORD *) NULL
-
+/**
+ * Jolly is a 3*8-bit WordWordJump machine. It means that the machine uses 3
+ * WORD per address and each WORD is 8 bits lengths.
+ * The corresponding datatype for 8 bits in C is unsigned char.
+ * Thus, we declare the following datatype.
+ */
 typedef unsigned char WORD;
+
+
+/**
+ * Let us define a null type for the memory of Jolly.
+ * This macro just casts NULL pointer into (WORD *).
+ */
+#define NULL_MEMORY (WORD *) NULL
 
 #endif
