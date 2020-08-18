@@ -1,4 +1,4 @@
-add_library(jolly vm.c primitives.c log.c)
+add_library(jolly SHARED vm.c primitives.c log.c)
 
 target_include_directories(jolly PUBLIC includes)
 set_target_properties(jolly PROPERTIES PUBLIC_HEADER includes/vm.h)
