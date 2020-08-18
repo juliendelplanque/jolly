@@ -43,50 +43,37 @@ struct virtual_machine{
 };
 
 /**
- * Macro to get the value of the primitive to call in virtual machine's memory
- * easily.
+ * Gets the value of the primitive to call in virtual machine's memory.
  */
-#define get_primitive_call_id(vm) \
-    (vm->memory[PRIMITIVE_CALL_ID_ADDRESS])
+unsigned int get_primitive_call_id(struct virtual_machine *vm);
 
 /**
- * Macro to set the value of the primitive to call in virtual machine's memory
- * easily.
+ * Sets the value of the primitive to call in virtual machine's memory.
  */
-#define set_primitive_call_id(vm, value) \
-    (vm->memory[PRIMITIVE_CALL_ID_ADDRESS] = value)
+void set_primitive_call_id(struct virtual_machine *vm, WORD value);
 
 /**
- * Macro to set the value of the byte specifying if the primitive is ready to be
- * called or not in virtual machine's memory easily.
+ * Sets the value of the byte specifying if the primitive is ready to be
+ * called or not in virtual machine's memory.
  */
-#define set_primitive_is_ready(vm, value) \
-    (vm->memory[PRIMITIVE_IS_READY_ADDRESS] = value)
+void set_primitive_is_ready(struct virtual_machine *vm, WORD value);
 
 /**
- * Macro expanding to an expression return TRUE if the primitive is ready to
- * be executed by the virtual machine.
- * Else the expanded expression returns FALSE.
+ * Returns TRUE if the primitive is ready to be executed by the virtual 
+ * machine. Else returns FALSE.
  */
-#define is_primitive_ready(vm) \
-    (vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY)
+int is_primitive_ready(struct virtual_machine *vm);
 
 /**
- * Macro expanding to an expression return TRUE if the primitive failed during
- * last execution.
- * Else the expanded expression returns FALSE.
+ * Returns TRUE if the primitive failed during last execution.
+ * Else returns FALSE.
  */
-#define did_primitive_failed(vm) \
-    (vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE)
+int did_primitive_failed(struct virtual_machine *vm);
 
 /**
- * Macro to extract the value of the program counter from virtual machine's
- * memory.
+ * Extracts the value of the program counter from virtual machine's memory.
  */
-#define extract_pc(vm) \
-    (vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE \
-        | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE \
-        | vm->memory[PC_LOW_ADDRESS])
+unsigned int extract_pc(struct virtual_machine *vm);
 
 /**
  * Loads the program counter stored in vm's memory into pc field of the vm
@@ -128,7 +115,7 @@ int get_pc_address(struct virtual_machine *vm);
  * to pc_address.
  * Does not modify the memory but needs it to be set before execution.
  */
-int set_pc_address(struct virtual_machine *vm, int pc_address);
+int set_pc_address(struct virtual_machine *vm, unsigned int pc_address);
 
 /**
  * Serializes actual program counter of the virtual machine provided as argument

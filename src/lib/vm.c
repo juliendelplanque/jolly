@@ -11,6 +11,32 @@ void print_value_at_address(struct virtual_machine *vm, unsigned int address);
 
 
 /* Implementation. -----------------------------------------------------------*/
+unsigned int get_primitive_call_id(struct virtual_machine *vm){
+    return vm->memory[PRIMITIVE_CALL_ID_ADDRESS];
+}
+
+void set_primitive_call_id(struct virtual_machine *vm, WORD value){
+    vm->memory[PRIMITIVE_CALL_ID_ADDRESS] = value;
+}
+
+void set_primitive_is_ready(struct virtual_machine *vm, WORD value){
+    vm->memory[PRIMITIVE_IS_READY_ADDRESS] = value;
+}
+
+int is_primitive_ready(struct virtual_machine *vm){
+    return vm->memory[PRIMITIVE_IS_READY_ADDRESS] == PRIMITIVE_READY;
+}
+
+int did_primitive_failed(struct virtual_machine *vm){
+    return vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_FAILED_RESULT_CODE;
+}
+
+unsigned int extract_pc(struct virtual_machine *vm){
+    return vm->memory[PC_HIGH_ADDRESS] << DOUBLE_WORD_SIZE
+            | vm->memory[PC_MIDDLE_ADDRESS] << WORD_SIZE
+            | vm->memory[PC_LOW_ADDRESS];
+}
+
 int load_pc(struct virtual_machine *vm){
     vm->pc = vm->memory + extract_pc(vm);
     return 0;
@@ -59,7 +85,7 @@ int get_pc_address(struct virtual_machine *vm){
     return ((unsigned)vm->pc)-((unsigned)vm->memory);
 }
 
-int set_pc_address(struct virtual_machine *vm, int pc_address){
+int set_pc_address(struct virtual_machine *vm, unsigned int pc_address){
     if(vm->memory == NULL_MEMORY){
         return VM_INVALID_MEMORY;
     }
