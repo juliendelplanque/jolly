@@ -3,6 +3,8 @@
 #include "primitives.h"
 #include "log.h"
 
+#define ENABLE_LOGGING
+
 #include <stdlib.h>
 #include <stdio.h>
 

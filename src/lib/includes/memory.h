@@ -23,7 +23,7 @@ typedef unsigned char WORD;
 /**
  * Twice the number of bits in a WORD.
  */
-#define DOUBLE_WORD_SIZE (WORD_SIZE * 2)
+#define DOUBLE_WORD_SIZE 16
 
 /**
  * The maximal size of addressable memory for a Jolly program.

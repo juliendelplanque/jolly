@@ -1,9 +1,14 @@
 #include "vm.h"
 #include "primitives.h"
-#include "log.h"
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#ifdef ENABLE_LOGGING
+#include "log.h"
+#else
+#include "nolog.h"
+#endif
 
 /* Debug functions declarations. ---------------------------------------------*/
 void print_pc_address(struct virtual_machine *vm);

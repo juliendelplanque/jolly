@@ -1,8 +1,13 @@
 #include "primitives.h"
-#include "log.h"
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+
+#ifdef ENABLE_LOGGING
+#include "log.h"
+#else
+#include "nolog.h"
+#endif
 
 #define ERROR_NO_STREAM_AVAILABLE (-1)
 
