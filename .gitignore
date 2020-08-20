@@ -2,3 +2,5 @@
 build/
 jolly
 .vscode
+__pycache__/
+*.pyc
