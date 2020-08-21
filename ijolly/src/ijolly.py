@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""ijolly
+
+Usage:
+  ijolly.py <file>
+  ijolly.py (-h | --help)
+  ijolly.py (-v | --version)
+"""
+
 import os
 import sys
 import cmd
@@ -6,6 +14,7 @@ import readline
 import re
 from functools import reduce
 from abc import ABCMeta, abstractmethod
+from docopt import docopt
 
 from jollypy import *
 
@@ -75,9 +84,12 @@ class InteractiveJolly(object):
     def next(self, count=1):
         for _ in range(count):
             self.vm.execute_instruction()
+    
+    def get_pc_address(self):
+        return self.vm.get_pc_address()
 
     def print_pc(self):
-        self.int_print_strategy(self.vm.get_pc_address(), 8)
+        self.int_print_strategy(self.get_pc_address(), 8)
 
     def load(self, filename):
         self.vm.load_from_file(filename)
@@ -128,6 +140,10 @@ class InteractiveJolly(object):
 
     def nextprim(self, primitive_id=None):
         self.vm.execute_until_primitive_ready(primitive_id)
+
+    def next_up_to(self, address):
+        while not self.get_pc_address() == address:
+            self.next()
 
     def add_watcher(self, name, address, bytes_count=1):
         self.watchers.append(MemoryWatcher(name, address, bytes_count))
@@ -205,6 +221,9 @@ class JollyShell(cmd.Cmd):
     def do_nextprim(self, arg):
         self.ijolly.nextprim(*self.parse_args(arg))
 
+    def do_nextupto(self, arg):
+        self.ijolly.next_up_to(*self.parse_args(arg))
+
     def do_pc(self, arg):
         self.ijolly.print_pc()
 
@@ -277,7 +296,7 @@ class JollyShell(cmd.Cmd):
         self.do_watch("primitive_is_ready 0x3 1")
         self.do_watch("primitive_call_id 0x4 1")
         self.do_watch("primitive_result_code 0x5 1")
-        self.do_watch("primitive_result_pointer 0x6 1")
+        self.do_watch("primitive_result_pointer 0x6 3")
 
     def help_watch_vm_vars(self):
         print("Add watchers for memory zones required by the VM.\n" \
@@ -287,7 +306,7 @@ class JollyShell(cmd.Cmd):
             + "watch primitive_is_ready 0x3 1\n" \
             + "watch primitive_call_id 0x4 1\n" \
             + "watch primitive_result_code 0x5 1\n" \
-            + "watch primitive_result_pointer 0x6 1")
+            + "watch primitive_result_pointer 0x6 3")
 
     def do_watchers(self, arg=""):
         print("Watchers:")
@@ -298,21 +317,14 @@ class JollyShell(cmd.Cmd):
             print("No watcher.")
 
 if __name__ == '__main__':
+    arguments = docopt(__doc__, version='ijolly 0.1.0')
+
     ffi, lib = build_ffi(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-    vm = JollyVM(ffi, lib)
-
-    vm.load_from_file(os.path.join(os.path.dirname(__file__), '..', '..', 'images' , 'echo.jolly'))
-    ijolly = InteractiveJolly(vm)
-    # memory = JollyMemory(ffi, lib)
-    # memory.set_pc_address(0x424242)
-    # memory.store_instruction(JollyInstruction(0x424242, 0x434242, 0x434243, 0x434244))
-    # vm.set_memory(memory)
-
-    # print(hex(vm.get_pc_address()))
-    # vm.execute_instruction()
-    # print(hex(vm.get_pc_address()))
+    
+    ijolly = InteractiveJolly(JollyVM(ffi, lib))
+    
+    if arguments["<file>"]:
+        ijolly.load(os.path.join(os.path.dirname(__file__), arguments["<file>"]))
 
     shell = JollyShell(ijolly)
-    shell.vm = vm
     shell.cmdloop()
