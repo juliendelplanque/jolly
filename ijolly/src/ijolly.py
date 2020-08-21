@@ -135,8 +135,18 @@ class InteractiveJolly(object):
     def has_watchers(self):
         return len(self.watchers) >= 1
 
+def welcome_shell_message():
+    return ",~~_\n" + \
+           "|/\\ =_ _ ~\n" + \
+           " _( )_( )\\~~\n" + \
+           " \\,\\  _|\\ \\~~~\n" + \
+           "    \\`   \\ \n" + \
+           "    `    `\n" + \
+           'Welcome to interactive jolly.\n' + \
+           'Type help or ? to list commands.\n'
+
 class JollyShell(cmd.Cmd):
-    intro = 'Welcome to interactive jolly. Type help or ? to list commands.\n'
+    intro = welcome_shell_message()
     prompt = '(ijolly) '
 
     def __init__(self, ijolly, completekey='tab', stdin=None, stdout=None):
