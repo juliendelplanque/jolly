@@ -25,3 +25,9 @@ def test_parse_input_42_hex():
     shell = ijolly.JollyShell(interactive_jolly)
     
     assert shell.parse_input("0x2a") == 42
+
+def test_parse_input_string():
+    interactive_jolly = ijolly.InteractiveJolly(None)
+    shell = ijolly.JollyShell(interactive_jolly)
+    
+    assert shell.parse_input("foo") == "foo"
