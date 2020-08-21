@@ -271,6 +271,23 @@ class JollyShell(cmd.Cmd):
             + "VM (for example using next command).\n\n" \
             + "Synopsis: watch watcher_name address [bytes_count default: 1]\n\n" \
             + "Example: watch varX 0x09002F 3")
+    
+    def do_watch_vm_vars(self, arg):
+        self.do_watch("serialized_pc 0x0 3")
+        self.do_watch("primitive_is_ready 0x3 1")
+        self.do_watch("primitive_call_id 0x4 1")
+        self.do_watch("primitive_result_code 0x5 1")
+        self.do_watch("primitive_result_pointer 0x6 1")
+
+    def help_watch_vm_vars(self):
+        print("Add watchers for memory zones required by the VM.\n" \
+            + "This command is a shortcut equivalent to the following " \
+            + "sequence of commands:\n" \
+            + "watch serialized_pc 0x0 3\n" \
+            + "watch primitive_is_ready 0x3 1\n" \
+            + "watch primitive_call_id 0x4 1\n" \
+            + "watch primitive_result_code 0x5 1\n" \
+            + "watch primitive_result_pointer 0x6 1")
 
     def do_watchers(self, arg=""):
         print("Watchers:")
