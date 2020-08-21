@@ -3,14 +3,75 @@ import os
 import sys
 import cmd
 import readline
+import re
+from functools import reduce
+from abc import ABCMeta, abstractmethod
 
 from jollypy import *
+
+class IntegerToStringStrategy(object, metaclass=ABCMeta):
+    @abstractmethod
+    def to_string(self, integer, padding=0, prefix=""):
+        pass
+
+class IntegerToHexString(IntegerToStringStrategy):
+    def to_string(self, integer, padding=0, prefix="0x"):
+        # need to add 2 to padding because '0x' is counted as padding
+        return prefix+("{0:0{1}x}".format(integer, padding))
+
+class IntegerToDecimalString(IntegerToStringStrategy):
+    def to_string(self, integer, padding=0, prefix=""):
+        return "{0:d}".format(integer)
+
+class MemoryWatcher(object):
+    def __init__(self, name, address, bytes_count=1):
+        self.name = name
+        self.address = address
+        self.bytes_count = bytes_count
+    
+    def end_address(self):
+        return self.address + self.bytes_count - 1
+
+    def extract(self, memory):
+        """ Extracts the list of bytes corresponding to the memory zone watched
+            from the VM's memory.
+        """
+        return memory[self.address:self.end_address()+1]
+    
+    def extract_memory_to_string(self, interactive_jolly):
+        return reduce( \
+                lambda s, int_str : s + " " + int_str, \
+                map(lambda b : \
+                        interactive_jolly.integer_to_string( \
+                            b, prefix="", padding=2), \
+                    self.extract(interactive_jolly.memory())))
+
+    def to_user_string(self, interactive_jolly):
+        return "\"" + self.name + "\" " \
+            + interactive_jolly.integer_to_string(self.address, padding=8) \
+            + ": " + self.extract_memory_to_string(interactive_jolly)
 
 class InteractiveJolly(object):
     def __init__(self, vm):
         self.vm = vm
-        self.int_print_strategy = lambda x, padding : print(str(x))
+        self.integer_print_strategy = IntegerToHexString()
+        self.watchers=[]
+
+    def int_print_strategy(self, integer, padding):
+        print(self.integer_to_string(integer, padding))
     
+    def switch_to_decimal(self):
+        self.integer_print_strategy = IntegerToDecimalString()
+    
+    def switch_to_hexadecimal(self):
+        self.integer_print_strategy = IntegerToHexString()
+
+    def integer_to_string(self, *args, **kwargs):
+        return self.integer_print_strategy.to_string(*args, **kwargs)
+    
+    def memory(self):
+        return self.vm.memory
+
     def next(self, count=1):
         for _ in range(count):
             self.vm.execute_instruction()
@@ -68,6 +129,12 @@ class InteractiveJolly(object):
     def nextprim(self, primitive_id=None):
         self.vm.execute_until_primitive_ready(primitive_id)
 
+    def add_watcher(self, name, address, bytes_count=1):
+        self.watchers.append(MemoryWatcher(name, address, bytes_count))
+
+    def has_watchers(self):
+        return len(self.watchers) >= 1
+
 class JollyShell(cmd.Cmd):
     intro = 'Welcome to interactive jolly. Type help or ? to list commands.\n'
     prompt = '(ijolly) '
@@ -76,19 +143,22 @@ class JollyShell(cmd.Cmd):
         super().__init__(completekey, stdin, stdout)
         self.ijolly = ijolly
 
-    def parse_int(self, string):
+    def parse_input(self, string):
         if string == "pc":
-            return self.vm.get_pc_address()
-        elif string.startswith('0x'):
+            return self.ijolly.get_pc_address()
+        elif re.match("0x[0-9A-Fa-f]+", string):
             return int(string[2:], 16)
+        elif re.match("[0-9]+", string):
+            return int(string, 10)
         else:
-            return int(string)
+            return string
+        
 
     def parse_args(self, arg):
-        """ Convert a series of zero or more numbers to an argument tuple.
+        """ Convert a series of zero or more inputs to an argument tuple.
         """
         args_list = arg.split()
-        return tuple(map(lambda x: self.parse_int(x), args_list))
+        return tuple(map(lambda x: self.parse_input(x), args_list))
 
     def exit(self):
         print("Bye!")
@@ -100,19 +170,21 @@ class JollyShell(cmd.Cmd):
     def do_dec(self, arg):
         """Sets integer printing to decimal mode.
         """
-        self.ijolly.int_print_strategy = lambda x, padding : print(str(x))
+        self.ijolly.switch_to_decimal()
         print("Switched integer printing to decimal.")
     
     def do_hex(self, arg):
         """Sets integer printing to hexadecimal mode.
         """
-        self.ijolly.int_print_strategy = lambda x, padding : print("{0:#0{1}x}".format(x, padding))
+        self.ijolly.switch_to_hexadecimal()
         print("Switched integer printing to hexadecimal.")
 
     def do_next(self, arg):
         """Execute a number of instructions specified by the argument: NEXT 10 (by default execute a single instruction).
         """
         self.ijolly.next(*self.parse_args(arg))
+        if self.ijolly.has_watchers():
+            self.do_watchers()
 
     def do_primready(self, arg):
         print(self.vm.is_primitive_ready())
@@ -144,6 +216,14 @@ class JollyShell(cmd.Cmd):
         print("Reads the address (3 bytes) at address provided as argument.\n\n" \
             + "Synopsis: reada address\n\n" \
             + "Example: reada 0x09002F")
+    
+    def do_readw(self, arg):
+        self.do_reada(arg)
+    
+    def help_reada(self):
+        print("Reads the word (3 bytes) at address provided as argument.\n\n" \
+            + "Synopsis: readw address\n\n" \
+            + "Example: readw 0x09002F")
 
     def do_readi(self, arg):
         self.ijolly.read_instruction(*self.parse_args(arg))
@@ -168,15 +248,34 @@ class JollyShell(cmd.Cmd):
     def help_hexdump(self):
         print("Prints an hexdump of VM memory starting at the closest inferior multiple of 16.\n" \
             + "If number of lines is not specified, prints 16 lines (16 * 16 bytes).\n\n" \
-            + "Synopsis: hexdump address [lines]\n\n" \
+            + "Synopsis: hexdump address [lines default: 16]\n\n" \
             + "Example: hexdump 0x09002F 32")
 
+    def do_watch(self, arg):
+        self.ijolly.add_watcher(*self.parse_args(arg))
+
+    def help_watch(self):
+        print("Watch the bytes at the address provided as arguments.\n" \
+            + "Once this command is called, the values in memory will be " \
+            + "printed\nafter each user interaction with the execution of the " \
+            + "VM (for example using next command).\n\n" \
+            + "Synopsis: watch watcher_name address [bytes_count default: 1]\n\n" \
+            + "Example: watch varX 0x09002F 3")
+
+    def do_watchers(self, arg=""):
+        print("Watchers:")
+        if self.ijolly.has_watchers():
+            for watcher in self.ijolly.watchers:
+                print(watcher.to_user_string(self.ijolly))
+        else:
+            print("No watcher.")
+
 if __name__ == '__main__':
-    ffi, lib = build_ffi(os.path.join(os.path.dirname(__file__), '..'))
+    ffi, lib = build_ffi(os.path.join(os.path.dirname(__file__), '..', '..'))
 
     vm = JollyVM(ffi, lib)
 
-    vm.load_from_file(os.path.join(os.path.dirname(__file__), '..', 'images' , 'echo.jolly'))
+    vm.load_from_file(os.path.join(os.path.dirname(__file__), '..', '..', 'images' , 'echo.jolly'))
     ijolly = InteractiveJolly(vm)
     # memory = JollyMemory(ffi, lib)
     # memory.set_pc_address(0x424242)
