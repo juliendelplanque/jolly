@@ -61,11 +61,20 @@ class MemoryWatcher(object):
             + interactive_jolly.integer_to_string(self.address, padding=8) \
             + ": " + self.extract_memory_to_string(interactive_jolly)
 
+class Macro(object):
+    def __init__(self, name, command):
+        self.name = name
+        self.command = command
+    
+    def run(self, shell):
+        shell.onecmd(" ".join(map(str, self.command)))
+
 class InteractiveJolly(object):
     def __init__(self, vm):
         self.vm = vm
         self.integer_print_strategy = IntegerToHexString()
-        self.watchers=[]
+        self.watchers = []
+        self.macros = []
 
     def int_print_strategy(self, integer, padding):
         print(self.integer_to_string(integer, padding))
@@ -158,6 +167,18 @@ class InteractiveJolly(object):
 
     def has_watchers(self):
         return len(self.watchers) >= 1
+    
+    def add_macro(self, name, command):
+        self.macros.append(Macro(name, command))
+    
+    def get_macro(self, macro_name):
+        for m in self.macros:
+            if m.name == macro_name:
+                return m
+        raise Error("No macro with such name defined.")
+    
+    def call_macro(self, macro_name, shell):
+        self.get_macro(macro_name).run(shell)
 
 def welcome_shell_message():
     return ",~~_\n" + \
@@ -323,6 +344,13 @@ class JollyShell(cmd.Cmd):
                 print(watcher.to_user_string(self.ijolly))
         else:
             print("No watcher.")
+    
+    def do_defm(self, arg):
+        parsed = self.parse_args(arg)
+        self.ijolly.add_macro(parsed[0], parsed[1:])
+    
+    def do_callm(self, arg):
+        self.ijolly.call_macro(*self.parse_args(arg), self)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='ijolly 0.1.0')
