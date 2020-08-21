@@ -15,6 +15,7 @@ import re
 from functools import reduce
 from abc import ABCMeta, abstractmethod
 from docopt import docopt
+from termcolor import colored
 
 from jollypy import *
 
@@ -126,15 +127,22 @@ class InteractiveJolly(object):
             for byte_address in range(first_line_address, first_line_address + 16):
                 if byte_address == first_line_address + 8:
                     print(" ", end='')
-                print("{0:0{1}x}".format(self.vm.memory[byte_address], 2), end=' ')
+                to_print = "{0:0{1}x}".format(self.vm.memory[byte_address], 2)
+                if byte_address == start_address_wanted:
+                    to_print = colored(to_print, attrs=['underline'])
+                print(to_print, end=' ')
             print("|", end='')
             for byte_address in range(first_line_address, first_line_address + 16):
+                to_print = None
                 if self.vm.memory[byte_address] >= 0x21 and self.vm.memory[byte_address] <= 0x7e:
                     b = bytearray(1)
                     b[0] = self.vm.memory[byte_address]
-                    print(b.decode("ascii"), end='')
+                    to_print = b.decode("ascii")
                 else:
-                    print(".", end='')
+                    to_print = '.'
+                if byte_address == start_address_wanted:
+                    to_print = colored(to_print, attrs=['underline'])
+                print(to_print, end='')
             print("|", end='')
             print("")
 
