@@ -19,26 +19,31 @@ from termcolor import colored
 
 from jollypy import *
 
+
 class IntegerToStringStrategy(object, metaclass=ABCMeta):
     @abstractmethod
     def to_string(self, integer, padding=0, prefix=""):
         pass
+
 
 class IntegerToHexString(IntegerToStringStrategy):
     def to_string(self, integer, padding=0, prefix="0x"):
         # need to add 2 to padding because '0x' is counted as padding
         return prefix+("{0:0{1}x}".format(integer, padding))
 
+
 class IntegerToDecimalString(IntegerToStringStrategy):
     def to_string(self, integer, padding=0, prefix=""):
         return "{0:d}".format(integer)
+
 
 class MemoryWatcher(object):
     def __init__(self, name, address, bytes_count=1):
         self.name = name
         self.address = address
         self.bytes_count = bytes_count
-    
+
+    @property    
     def end_address(self):
         return self.address + self.bytes_count - 1
 
@@ -46,7 +51,7 @@ class MemoryWatcher(object):
         """ Extracts the list of bytes corresponding to the memory zone watched
             from the VM's memory.
         """
-        return memory[self.address:self.end_address()+1]
+        return memory[self.address:self.end_address + 1]
     
     def extract_memory_to_string(self, interactive_jolly):
         i2s = interactive_jolly.integer_to_string
@@ -54,9 +59,10 @@ class MemoryWatcher(object):
        
 
     def to_user_string(self, interactive_jolly):
-        return "\"" + self.name + "\" " \
-            + interactive_jolly.integer_to_string(self.address, padding=8) \
-            + ": " + self.extract_memory_to_string(interactive_jolly)
+        address = interactive_jolly.integer_to_string(self.address, padding=8)
+        memory_dump = self.extract_memory_to_string(interactive_jolly)
+        return f'"{self.name}" {address}: {memory_dump}'
+
 
 class Macro(object):
     def __init__(self, name, command):
@@ -65,6 +71,7 @@ class Macro(object):
     
     def run(self, shell):
         shell.onecmd(" ".join(map(str, self.command)))
+
 
 class InteractiveJolly(object):
     def __init__(self, vm):
@@ -186,6 +193,7 @@ def welcome_shell_message():
            "    `    `\n" + \
            'Welcome to interactive jolly.\n' + \
            'Type help or ? to list commands.\n'
+
 
 class JollyShell(cmd.Cmd):
     intro = welcome_shell_message()
@@ -348,6 +356,7 @@ class JollyShell(cmd.Cmd):
     
     def do_callm(self, arg):
         self.ijolly.call_macro(*self.parse_args(arg), self)
+
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='ijolly 0.1.0')

@@ -10,12 +10,12 @@ import ijolly
 def test_end_address_from_address_0():
     watcher = ijolly.MemoryWatcher("foo", 0, 5)
 
-    assert watcher.end_address() == 4
+    assert watcher.end_address == 4
 
 def test_end_address_from_address_42():
     watcher = ijolly.MemoryWatcher("foo", 42, 5)
 
-    assert watcher.end_address() == 46
+    assert watcher.end_address == 46
 
 def test_extract_0_5():
     watcher = ijolly.MemoryWatcher("foo", 0, 5)
