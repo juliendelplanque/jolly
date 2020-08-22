@@ -3,13 +3,13 @@ import os
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..' , 'src'))
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
 import ijolly
 
 def test_parse_input_pc():
     interactive_jolly = ijolly.InteractiveJolly(None)
-    interactive_jolly.get_pc_address = MagicMock(return_value=42)
+    type(interactive_jolly).pc_address = PropertyMock(return_value=42)
     shell = ijolly.JollyShell(interactive_jolly)
     
     assert shell.parse_input("pc") == 42

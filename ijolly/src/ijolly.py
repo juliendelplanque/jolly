@@ -55,7 +55,7 @@ class MemoryWatcher(object):
     
     def extract_memory_to_string(self, interactive_jolly):
         i2s = interactive_jolly.integer_to_string
-        return " ".join(i2s(b, prefix="", padding=2) for b in self.extract(interactive_jolly.memory()))
+        return " ".join(i2s(b, prefix="", padding=2) for b in self.extract(interactive_jolly.memory))
        
 
     def to_user_string(self, interactive_jolly):
@@ -92,6 +92,7 @@ class InteractiveJolly(object):
     def integer_to_string(self, *args, **kwargs):
         return self.integer_print_strategy.to_string(*args, **kwargs)
     
+    @property
     def memory(self):
         return self.vm.memory
 
@@ -99,11 +100,12 @@ class InteractiveJolly(object):
         for _ in range(count):
             self.vm.execute_instruction()
     
-    def get_pc_address(self):
+    @property
+    def pc_address(self):
         return self.vm.get_pc_address()
 
     def print_pc(self):
-        self.int_print_strategy(self.get_pc_address(), 8)
+        self.int_print_strategy(self.pc_address, 8)
 
     def load(self, filename):
         self.vm.load_from_file(filename)
@@ -163,7 +165,7 @@ class InteractiveJolly(object):
         self.vm.execute_until_primitive_ready(primitive_id)
 
     def next_up_to(self, address):
-        while not self.get_pc_address() == address:
+        while not self.pc_address == address:
             self.next()
 
     def add_watcher(self, name, address, bytes_count=1):
@@ -205,7 +207,7 @@ class JollyShell(cmd.Cmd):
 
     def parse_input(self, string):
         if string == "pc":
-            return self.ijolly.get_pc_address()
+            return self.ijolly.pc_address
         elif re.match("0x[0-9A-Fa-f]+", string):
             return int(string[2:], 16)
         elif re.match("[0-9]+", string):
@@ -218,7 +220,7 @@ class JollyShell(cmd.Cmd):
         """ Convert a series of zero or more inputs to an argument tuple.
         """
         args_list = arg.split()
-        return tuple(map(lambda x: self.parse_input(x), args_list))
+        return tuple(self.parse_input(x) for x in args_list)
 
     def exit(self):
         print("Bye!")
