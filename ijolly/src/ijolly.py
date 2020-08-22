@@ -49,12 +49,9 @@ class MemoryWatcher(object):
         return memory[self.address:self.end_address()+1]
     
     def extract_memory_to_string(self, interactive_jolly):
-        return reduce( \
-                lambda s, int_str : s + " " + int_str, \
-                map(lambda b : \
-                        interactive_jolly.integer_to_string( \
-                            b, prefix="", padding=2), \
-                    self.extract(interactive_jolly.memory())))
+        i2s = interactive_jolly.integer_to_string
+        return " ".join(i2s(b, prefix="", padding=2) for b in self.extract(interactive_jolly.memory()))
+       
 
     def to_user_string(self, interactive_jolly):
         return "\"" + self.name + "\" " \
