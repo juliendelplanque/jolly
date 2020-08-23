@@ -46,6 +46,25 @@ The following table is a shortcut allowing you to not read [memory.h](src/lib/in
 | 0x000007     | PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS | Address of the byte storing the middle bits of the result pointer. |
 | 0x000008     | PRIMITIVE_RESULT_POINTER_LOW_ADDRESS    | Address of the byte storing the less significant bits of the result pointer. |
 
+## Images provided
+A set of Jolly programs are provided as binary files under the `images` directory.
+
+### Brainfuck interpreter
+This program reads BF code from stdin and interpret it.
+The BF program code provided must have less than 512 characters and be terminated by `q`.
+
+This is an `Hello World` in BF:
+
+```bash
+echo "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.q" | ./jolly images/brainfuck.jolly
+```
+
+The following BF program ([taken from here](http://esoteric.sange.fi/brainfuck/bf-source/prog/fibonacci.txt)) computes Fibonnaci numbers and prints them.
+
+```bash
+echo '+++++++++++>+>>>>++++++++++++++++++++++++++++++++++++++++++++>++++++++++++++++++++++++++++++++<<<<<<[>[>>>>>>+>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<[>++++++++++[-<-[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<[>>>+<<<-]>>[-]]<<]>>>[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<+>>[-]]<<<<<<<]>>>>>[++++++++++++++++++++++++++++++++++++++++++++++++.[-]]++++++++++<[->-<]>++++++++++++++++++++++++++++++++++++++++++++++++.[-]<<<<<<<<<<<<[>>>+>+<<<<-]>>>>[<<<<+>>>>-]<-[>>.>.<<<[-]]<<[>>+>+<<<-]>>>[<<<+>>>-]<<[<+>-]>[<+>-]<<<-]q' | ./jolly images/brainfuck.jolly
+```
+
 ## Future
 
 - Multi-threading
