@@ -247,8 +247,6 @@ class JollyShell(cmd.Cmd):
         """Execute a number of instructions specified by the argument: NEXT 10 (by default execute a single instruction).
         """
         self.ijolly.next(*self.parse_args(arg))
-        if self.ijolly.has_watchers():
-            self.do_watchers()
 
     def do_primready(self, arg):
         print(self.vm.is_primitive_ready())
