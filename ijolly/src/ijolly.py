@@ -160,6 +160,10 @@ class InteractiveJolly(object):
                 print(to_print, end='')
             print("|", end='')
             print("")
+    
+    def indirect_hexdump(self, address_pointer, *args, **kwargs):
+        address = self.vm.memory.get_address(address_pointer)
+        self.hexdump(address, *args, **kwargs)
 
     def nextprim(self, primitive_id=None):
         self.vm.execute_until_primitive_ready(primitive_id)
@@ -315,6 +319,15 @@ class JollyShell(cmd.Cmd):
               "If number of lines is not specified, prints 16 lines (16 * 16 bytes).\n\n"
               "Synopsis: hexdump address [lines default: 16]\n\n"
               "Example: hexdump 0x09002F 32")
+    
+    def do_ihexdump(self, arg):
+        self.ijolly.indirect_hexdump(*self.parse_args(arg))
+
+    def help_hexdump(self):
+        print("Similar to hexdump but use the address stored in memory that is pointed by the address provided as argument.\n"
+              "For the rest, works similarly to hexdump.\n\n"
+              "Synopsis: hexdump address [lines default: 16]\n\n"
+              "Example: ihexdump 0x09002F 32")
 
     def do_watch(self, arg):
         self.ijolly.add_watcher(*self.parse_args(arg))
