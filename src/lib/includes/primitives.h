@@ -61,6 +61,8 @@ void primitive_nop(struct virtual_machine *vm);
  * 
  * The special stream with id PRIMITIVE_FILE_INPUT_STREAM_STDIN is stdin
  * stream.
+ * 
+ * If no character can be read from the stream, the primitive fails.
  */
 void primitive_get_char(struct virtual_machine *vm);
 

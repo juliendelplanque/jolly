@@ -70,6 +70,7 @@ void primitive_nop(struct virtual_machine *vm){
 void primitive_get_char(struct virtual_machine *vm){
     unsigned int result_address;
     unsigned char stream_id;
+    int fgetc_result;
     FILE * input_stream;
     
     result_address = extract_result_address(vm);
@@ -88,7 +89,12 @@ void primitive_get_char(struct virtual_machine *vm){
     }
 
     log_debug("   filestream=%d.", stream_id);
-    vm->memory[result_address] = (WORD)fgetc(input_stream);
+    fgetc_result = fgetc(input_stream);
+    if(fgetc_result == EOF){
+        primitive_fail(vm);
+        return;
+    }
+    vm->memory[result_address] = (WORD)fgetc_result;
     log_debug( "    char=%c.", vm->memory[result_address]);
     primitive_ok(vm);
 }
