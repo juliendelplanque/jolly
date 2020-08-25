@@ -111,27 +111,27 @@ class InteractiveJolly(object):
         self.vm.load_from_file(filename)
 
     def read_byte(self, address):
-        self.int_print_strategy(self.vm.memory[address], 4)
+        self.int_print_strategy(self.memory[address], 4)
     
     def read_address(self, address):
-        self.int_print_strategy(self.vm.memory.get_address(address), 8)
+        self.int_print_strategy(self.memory.get_address(address), 8)
     
     def read_instruction(self, address):
-        instruction = self.vm.memory.get_instruction(address)
+        instruction = self.memory.get_instruction(address)
         self.int_print_strategy(instruction.from_add, 8)
         self.int_print_strategy(instruction.to_add, 8)
         self.int_print_strategy(instruction.jmp_add, 8)
 
     def write_byte(self, address, byte):
-        self.vm.memory[address] = byte
+        self.memory[address] = byte
     
     def write_address(self, address, value):
-        self.vm.memory.set_address(address, value)
+        self.memory.set_address(address, value)
     
     def write_instruction(self, address, from_add, to_add, jmp_add):
-        self.vm.memory.set_address(address, from_add)
-        self.vm.memory.set_address(address+3, to_add)
-        self.vm.memory.set_address(address+6, jmp_add)
+        self.memory.set_address(address, from_add)
+        self.memory.set_address(address+3, to_add)
+        self.memory.set_address(address+6, jmp_add)
     
     def hexdump(self, start_address_wanted, lines_count=16):
         first_address = start_address_wanted - (start_address_wanted % 16)
@@ -142,16 +142,16 @@ class InteractiveJolly(object):
             for byte_address in range(first_line_address, first_line_address + 16):
                 if byte_address == first_line_address + 8:
                     print(" ", end='')
-                to_print = "{0:0{1}x}".format(self.vm.memory[byte_address], 2)
+                to_print = "{0:0{1}x}".format(self.memory[byte_address], 2)
                 if byte_address == start_address_wanted:
                     to_print = colored(to_print, attrs=['underline'])
                 print(to_print, end=' ')
             print("|", end='')
             for byte_address in range(first_line_address, first_line_address + 16):
                 to_print = None
-                if self.vm.memory[byte_address] >= 0x21 and self.vm.memory[byte_address] <= 0x7e:
+                if self.memory[byte_address] >= 0x21 and self.memory[byte_address] <= 0x7e:
                     b = bytearray(1)
-                    b[0] = self.vm.memory[byte_address]
+                    b[0] = self.memory[byte_address]
                     to_print = b.decode("ascii")
                 else:
                     to_print = '.'
@@ -162,7 +162,7 @@ class InteractiveJolly(object):
             print("")
     
     def indirect_hexdump(self, address_pointer, *args, **kwargs):
-        address = self.vm.memory.get_address(address_pointer)
+        address = self.memory.get_address(address_pointer)
         self.hexdump(address, *args, **kwargs)
 
     def nextprim(self, primitive_id=None):
