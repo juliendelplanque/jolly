@@ -85,6 +85,7 @@ class InteractiveJolly(object):
         self.watchers = []
         self.macros = []
         self.labels = labels
+        self.enable_trace = False
 
     def int_print_strategy(self, integer, padding):
         print(self.integer_to_string(integer, padding))
@@ -104,6 +105,12 @@ class InteractiveJolly(object):
 
     def next(self, count=1):
         for _ in range(count):
+            if self.enable_trace:
+                labels_here = [ l.name for l in self.labels if l.address == self.pc_address ]
+                print("Trace ", end='')
+                if labels_here:
+                    print(labels_here, end = ' :')
+                self.print_pc()
             self.vm.execute_instruction()
     
     @property
@@ -390,6 +397,14 @@ class JollyShell(cmd.Cmd):
     
     def do_labels(self, arg):
         self.ijolly.print_labels()
+    
+    def do_trace(self, arg):
+        self.ijolly.enable_trace = True
+        print("Tracing enabled.")
+    
+    def do_untrace(self, arg):
+        self.ijolly.enable_trace = False
+        print("Tracing disabled.")
 
 
 def load_labels(file_path):
