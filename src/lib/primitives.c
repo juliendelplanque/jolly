@@ -292,8 +292,20 @@ void primitive_substract_addresses(struct virtual_machine *vm){
 }
 
 void primitive_decrement_address(struct virtual_machine *vm){
-    //TODO
-    primitive_fail(vm);
+    unsigned int result_address;
+    unsigned long x, decremented;
+
+    result_address = extract_result_address(vm);
+    x = extract_address(vm, result_address);
+    if(x == 0){
+        decremented = 0xFFFFFF;
+    } else{
+        decremented = x - 1;
+    }
+    vm->memory[result_address] = (decremented & 0xFF0000) >> DOUBLE_WORD_SIZE;
+    vm->memory[result_address+1] = (decremented & 0x00FF00) >> WORD_SIZE;
+    vm->memory[result_address+2] = (decremented & 0x0000FF);
+    primitive_ok(vm);
 }
 
 void primitive_increment_address(struct virtual_machine *vm){
