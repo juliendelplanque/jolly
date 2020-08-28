@@ -13,6 +13,13 @@
 #define PRIMITIVE_ID_OPEN_FILE 5
 #define PRIMITIVE_ID_CLOSE_FILE 6
 #define PRIMITIVE_ID_IS_FILE_OPEN 7
+#define PRIMITIVE_ID_ARGC 8
+#define PRIMITIVE_ID_ARGV_SIZE_AT_INDEX 9
+#define PRIMITIVE_ID_ARGV 10
+#define PRIMITIVE_ID_ADD_ADDRESSES 11
+#define PRIMITIVE_ID_SUBSTRACT_ADDRESSES 12
+#define PRIMITIVE_ID_DECREMENT_ADDRESS 13
+#define PRIMITIVE_ID_INCREMENT_ADDRESS 14
 
 #define PRIMITIVE_ID_EXTENDED 255
 
@@ -129,6 +136,59 @@ void primitive_is_file_open(struct virtual_machine *vm);
  * Stops virtual machine execution.
  */
 void primitive_stop(struct virtual_machine *vm);
+
+/**
+ * A primitive that retrieve the number of arguments passed to the VM when it
+ * was invoked from the command line.
+ * 
+ * Stores the arguments count (argc) in the byte pointed by the result pointer.
+ */
+void primitive_argc(struct virtual_machine *vm);
+
+/**
+ * A primitive that retrieve the size of the arguments string at a specific
+ * index that was passed to the VM when it was invoked from the command line.
+ * 
+ * Stores the argument null-terminated string size (argc) in the 3 consecutive
+ * bytes pointed by the result pointer.
+ */
+void primitive_argv_size_at_index(struct virtual_machine *vm);
+
+/**
+ * A primitive that retrieve the arguments passed to the VM when it was invoked
+ * from the command line one by one according to the index provided.
+ * 
+ * Reads the byte pointed by the result pointer, the char stored there
+ * is the index of the argument string to retrieve.
+ * Reads the 3 bytes address located at [result pointer + 1, result pointer+3],
+ * the address stored there points to the location where the argument string
+ * should be stored.
+ * 
+ * Stores the retrieved argument as a null-terminated string in consecutive
+ * memory starting at the byte pointed by the address read previously.
+ */
+void primitive_argv(struct virtual_machine *vm);
+
+/**
+ * A primitive that adds 2 addresses (3 bytes each) together and stores the
+ * result and the carry.
+ * 
+ * Reads the 6 consecutive bytes in memory pointed by the result pointer and
+ * consider the 3 first bytes as the first address and the 3 next as the second
+ * address.
+ * 
+ * Stores the result of the addition in the 3 first bytes pointed by the
+ * result pointer (thus overwriting the first address!) and stores either there
+ * is a carry (1) or not (0) in the following byte (thus overwriting part of the
+ * second address!).
+ */
+void primitive_add_addresses(struct virtual_machine *vm);
+
+void primitive_substract_addresses(struct virtual_machine *vm);
+
+void primitive_decrement_address(struct virtual_machine *vm);
+
+void primitive_increment_address(struct virtual_machine *vm);
 
 /**
  * Execute an extended primitive. The code of the primitive to execute is stored

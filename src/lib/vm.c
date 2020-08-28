@@ -142,6 +142,27 @@ int execute_primitive(struct virtual_machine *vm){
         case(PRIMITIVE_ID_IS_FILE_OPEN):
             primitive_is_file_open(vm);
             break;
+        case(PRIMITIVE_ID_ARGC):
+            primitive_argc(vm);
+            break;
+        case(PRIMITIVE_ID_ARGV_SIZE_AT_INDEX):
+            primitive_argv_size_at_index(vm);
+            break;
+        case(PRIMITIVE_ID_ARGV):
+            primitive_argv(vm);
+            break;
+        case(PRIMITIVE_ID_ADD_ADDRESSES):
+            primitive_add_addresses(vm);
+            break;
+        case(PRIMITIVE_ID_SUBSTRACT_ADDRESSES):
+            primitive_substract_addresses(vm);
+            break;
+        case(PRIMITIVE_ID_DECREMENT_ADDRESS):
+            primitive_decrement_address(vm);
+            break;
+        case(PRIMITIVE_ID_INCREMENT_ADDRESS):
+            primitive_increment_address(vm);
+            break;
         default: // In case no primitive is associated to an id, the call fails.
             primitive_fail(vm);
             break;

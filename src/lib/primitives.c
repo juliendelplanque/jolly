@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 
+#define ENABLE_LOGGING
 #ifdef ENABLE_LOGGING
 #include "log.h"
 #else
@@ -11,13 +12,19 @@
 
 #define ERROR_NO_STREAM_AVAILABLE (-1)
 
-#define extract_result_address(vm) \
-    vm->memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] << DOUBLE_WORD_SIZE \
-        | vm->memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] << WORD_SIZE \
-        | vm->memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS]
+unsigned int extract_address(struct virtual_machine *vm, unsigned int address){
+    return vm->memory[address] << DOUBLE_WORD_SIZE
+        | vm->memory[address+1] << WORD_SIZE
+        | vm->memory[address+2];
+}
 
-#define primitive_ok(vm) \
-    vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE
+unsigned int extract_result_address(struct virtual_machine *vm){
+    return extract_address(vm, PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS);
+}
+
+void primitive_ok(struct virtual_machine *vm){
+    vm->memory[PRIMITIVE_RESULT_CODE_ADDRESS] = PRIMITIVE_OK_RESULT_CODE;
+}
 
 int initialize_primitives_data(struct virtual_machine *vm){
     // Initialize special file streams.
@@ -169,6 +176,7 @@ void primitive_open_file(struct virtual_machine *vm){
     }
     // Then read primitives arguments.
     result_address = extract_result_address(vm);
+    log_debug("    result_address = 0x%06X", result_address);
     // First, the file open mode.
     file_open_mode_code = vm->memory[result_address];
     switch(file_open_mode_code){
@@ -243,6 +251,61 @@ void primitive_is_file_open(struct virtual_machine *vm){
     } else{
         vm->memory[result_address] = PRIMITIVE_FILE_IS_OPEN;
     }
+    primitive_ok(vm);
+}
+
+void primitive_argc(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_argv_size_at_index(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_argv(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_add_addresses(struct virtual_machine *vm){
+    unsigned int result_address;
+    unsigned long x, y, sum;
+
+    result_address = extract_result_address(vm);
+
+    x = extract_address(vm, result_address);
+    y = extract_address(vm, result_address+3);
+    sum = x + y;
+    vm->memory[result_address+3] = (sum & 0xFF000000) > 0;
+    sum = sum % 0xFFFFFF;
+    vm->memory[result_address] = (sum & 0xFF0000) >> DOUBLE_WORD_SIZE;
+    vm->memory[result_address+1] = (sum & 0x00FF00) >> WORD_SIZE;
+    vm->memory[result_address+2] = (sum & 0x0000FF);
+    primitive_ok(vm);
+}
+
+void primitive_substract_addresses(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_decrement_address(struct virtual_machine *vm){
+    //TODO
+    primitive_fail(vm);
+}
+
+void primitive_increment_address(struct virtual_machine *vm){
+    unsigned int result_address;
+    unsigned long x, incremented;
+
+    result_address = extract_result_address(vm);
+    x = extract_address(vm, result_address);
+    incremented = (x + 1) % 0x1000000;
+    vm->memory[result_address] = (incremented & 0xFF0000) >> DOUBLE_WORD_SIZE;
+    vm->memory[result_address+1] = (incremented & 0x00FF00) >> WORD_SIZE;
+    vm->memory[result_address+2] = (incremented & 0x0000FF);
     primitive_ok(vm);
 }
 

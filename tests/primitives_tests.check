@@ -668,6 +668,93 @@
     finalize_primitives_data(vm);
     free(vm);
 
+#test test_primitive_increment_address
+    struct virtual_machine *vm;
+
+    // Need a memory that can store address.
+    WORD memory[MINIMAL_MEMORY_SIZE+3];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = 0;
+    memory[MINIMAL_MEMORY_SIZE+1] = 0;
+    memory[MINIMAL_MEMORY_SIZE+2] = 0;
+    set_memory(vm, memory);
+
+    primitive_increment_address(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 0);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+1] == 0);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+2] == 1);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_increment_address2
+    struct virtual_machine *vm;
+
+    // Need a memory that can store address.
+    WORD memory[MINIMAL_MEMORY_SIZE+3];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = 0;
+    memory[MINIMAL_MEMORY_SIZE+1] = 0;
+    memory[MINIMAL_MEMORY_SIZE+2] = 0xFF;
+    set_memory(vm, memory);
+
+    primitive_increment_address(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 0);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+1] == 1);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+2] == 0);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
+#test test_primitive_increment_address_overflow
+    struct virtual_machine *vm;
+
+    // Need a memory that can store address.
+    WORD memory[MINIMAL_MEMORY_SIZE+3];
+    if(new_vm(&vm) != VM_OK){
+        fail();
+    }
+    // Setup memory
+    memory[PRIMITIVE_RESULT_POINTER_HIGH_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_MIDDLE_ADDRESS] = 0x00;
+    memory[PRIMITIVE_RESULT_POINTER_LOW_ADDRESS] = MINIMAL_MEMORY_SIZE;
+    memory[MINIMAL_MEMORY_SIZE] = 0xFF;
+    memory[MINIMAL_MEMORY_SIZE+1] = 0xFF;
+    memory[MINIMAL_MEMORY_SIZE+2] = 0xFF;
+    set_memory(vm, memory);
+
+    primitive_increment_address(vm);
+
+    // Make sure primitive succeed
+    fail_unless(memory[PRIMITIVE_RESULT_CODE_ADDRESS] == PRIMITIVE_OK_RESULT_CODE);
+
+    fail_unless(memory[MINIMAL_MEMORY_SIZE] == 0);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+1] == 0);
+    fail_unless(memory[MINIMAL_MEMORY_SIZE+2] == 0);
+    
+    finalize_primitives_data(vm);
+    free(vm);
+
 /*
  * Extended primitive is not supported yet. So this primitive should always fail.
  */
