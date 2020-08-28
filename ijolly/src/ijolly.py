@@ -12,6 +12,7 @@ import sys
 import cmd
 import readline
 import re
+import csv
 from functools import reduce
 from abc import ABCMeta, abstractmethod
 from docopt import docopt
@@ -72,13 +73,18 @@ class Macro(object):
     def run(self, shell):
         shell.onecmd(" ".join(map(str, self.command)))
 
+class Label(object):
+    def __init__(self, name, address):
+        self.name = name
+        self.address = address
 
 class InteractiveJolly(object):
-    def __init__(self, vm):
+    def __init__(self, vm, labels=[]):
         self.vm = vm
         self.integer_print_strategy = IntegerToHexString()
         self.watchers = []
         self.macros = []
+        self.labels = labels
 
     def int_print_strategy(self, integer, padding):
         print(self.integer_to_string(integer, padding))
@@ -190,6 +196,11 @@ class InteractiveJolly(object):
     def call_macro(self, macro_name, shell):
         self.get_macro(macro_name).run(shell)
 
+    def print_labels(self):
+        print("Labels:")
+        for label in sorted(self.labels, key=lambda l: l.name):
+            print(label.name, end=' : ')
+            self.int_print_strategy(label.address, 8)
 
 welcome_shell_message = \
 """,~~_
@@ -371,7 +382,19 @@ class JollyShell(cmd.Cmd):
     
     def do_callm(self, arg):
         self.ijolly.call_macro(*self.parse_args(arg), self)
+    
+    def do_labels(self, arg):
+        self.ijolly.print_labels()
 
+
+def load_labels(file_path):
+    labels = []
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            labels.append(Label(row[0], int(row[1][2:], 16)))
+    return labels
+            
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='ijolly 0.1.0')
@@ -381,7 +404,10 @@ if __name__ == '__main__':
     ijolly = InteractiveJolly(JollyVM(ffi, lib))
     
     if arguments["<file>"]:
-        ijolly.load(os.path.join(os.path.dirname(__file__), arguments["<file>"]))
+        image_file = os.path.join(os.path.dirname(__file__), arguments["<file>"])
+        ijolly.load(image_file)
+        if os.path.exists(image_file+".meta"):
+            ijolly.labels = load_labels(image_file+".meta")
 
     shell = JollyShell(ijolly)
     shell.cmdloop()
