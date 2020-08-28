@@ -172,7 +172,12 @@ class InteractiveJolly(object):
         self.hexdump(address, *args, **kwargs)
 
     def nextprim(self, primitive_id=None):
-        self.vm.execute_until_primitive_ready(primitive_id)
+        if primitive_id:
+            while not (self.vm.is_primitive_ready() and self.vm.primitive_call_id() == primitive_id):
+                self.next()
+        else: 
+            while not self.vm.is_primitive_ready():
+                self.next()
 
     def next_up_to(self, address):
         while not self.pc_address == address:

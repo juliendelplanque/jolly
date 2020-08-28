@@ -80,14 +80,6 @@ class JollyVM(object):
     
     def primitive_call_id(self):
         return self.lib.get_primitive_call_id(self.__c_vm_pointer())
-    
-    def execute_until_primitive_ready(self, primitive_id=None):
-        if primitive_id:
-            while not (self.is_primitive_ready() and self.primitive_call_id() == primitive_id):
-                self.execute_instruction()
-        else: 
-            while not self.is_primitive_ready():
-                self.execute_instruction()
 
     def load_from_file(self, filename):
         self.lib.load_image(self.__c_vm_pointer(), filename.encode("ascii"))
