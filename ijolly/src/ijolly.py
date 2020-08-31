@@ -189,6 +189,11 @@ class InteractiveJolly(object):
     def next_up_to(self, address):
         while not self.pc_address == address:
             self.next()
+    
+    def next_until_about_to_write(self, address, value=None):
+        print(address)
+        while self.memory.get_instruction(address).to_add != address:
+            self.next()
 
     def add_watcher(self, name, address, bytes_count=1):
         self.watchers.append(MemoryWatcher(name, address, bytes_count))
@@ -405,6 +410,9 @@ class JollyShell(cmd.Cmd):
     def do_untrace(self, arg):
         self.ijolly.enable_trace = False
         print("Tracing disabled.")
+
+    def do_nextuntilwrite(self, arg):
+        self.ijolly.next_until_about_to_write(*self.parse_args(arg))
 
 
 def load_labels(file_path):
