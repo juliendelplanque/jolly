@@ -5,6 +5,14 @@
 #include "memory.h"
 #include "vm.h"
 
+/**
+ * Error codes.
+ */
+#define PRIMITIVE_OK 0 // Code returned when everything went fine.
+
+/**
+ * Constants to encode/decode primitive information in memory.
+ */
 #define PRIMITIVE_ID_NOPE 0
 #define PRIMITIVE_ID_FAIL 1
 #define PRIMITIVE_ID_PUT_CHAR 2
