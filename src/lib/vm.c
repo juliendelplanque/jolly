@@ -57,6 +57,7 @@ int new_vm(struct virtual_machine **vm){
         return VM_ALLOCATION_FAILED; //TODO other error code.
     }
     (*vm)->status = VIRTUAL_MACHINE_RUN;
+    (*vm)->memory = NULL_MEMORY;
     return VM_OK;
 }
 
@@ -87,7 +88,7 @@ void free_vm(struct virtual_machine *vm){
 }
 
 int get_pc_address(struct virtual_machine *vm){
-    return ((unsigned)vm->pc)-((unsigned)vm->memory);
+    return (vm->pc)-(vm->memory);
 }
 
 int set_pc_address(struct virtual_machine *vm, unsigned int pc_address){
