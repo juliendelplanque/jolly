@@ -18,6 +18,7 @@
 
     load_pc(jolly);
     fail_unless(get_pc_address(jolly) == 0x004210);
+    free_vm(jolly);
 
 #test test_set_pc_address
     struct virtual_machine *jolly;
@@ -30,6 +31,7 @@
 
     set_pc_address(jolly, 0x001042);
     fail_unless(get_pc_address(jolly) == 0x001042);
+    free_vm(jolly);
 
 #test test_serialize_pc
     struct virtual_machine *jolly;
@@ -46,12 +48,13 @@
     serialize_pc(jolly);
 
     fail_unless(extract_pc(jolly) == 0x001042);
+    free_vm(jolly);
 
 #test test_new_vm_status
-    struct virtual_machine *vm;
-    if(new_vm(&vm) != VM_OK){
+    struct virtual_machine *jolly;
+    if(new_vm(&jolly) != VM_OK){
         fail();
     }
 
-    fail_unless(vm->status == VIRTUAL_MACHINE_RUN);
-    free_vm(vm);
+    fail_unless(jolly->status == VIRTUAL_MACHINE_RUN);
+    free_vm(jolly);
