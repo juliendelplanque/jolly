@@ -44,7 +44,7 @@ unsigned int extract_pc(struct virtual_machine *vm){
 
 int load_pc(struct virtual_machine *vm){
     vm->pc = vm->memory + extract_pc(vm);
-    return 0;
+    return VM_OK;
 }
 
 int new_vm(struct virtual_machine **vm){
