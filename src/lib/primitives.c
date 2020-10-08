@@ -38,7 +38,7 @@ int initialize_primitives_data(struct virtual_machine *vm){
         i++){
         vm->file_streams[i] = NULL;
     }
-    return 0;
+    return PRIMITIVE_OK;
 }
 
 int finalize_primitives_data(struct virtual_machine *vm){
@@ -62,7 +62,7 @@ int finalize_primitives_data(struct virtual_machine *vm){
             }
         }
     }
-    return 0;
+    return PRIMITIVE_OK;
 }
 
 void primitive_fail(struct virtual_machine *vm){
